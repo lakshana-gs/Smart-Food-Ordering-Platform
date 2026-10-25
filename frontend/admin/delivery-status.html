@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Delivery Status</title>
+  <link rel="stylesheet" href="../css/Pages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="admin-dashboard">
+  <div class="admin-container">
+    <header class="admin-header">
+      <div class="header-content">
+        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
+        <p class="admin-subtitle">Update Delivery Status</p>
+      </div>
+    </header>
+
+    <div class="dashboard-main">
+      <div class="form-card slide-in">
+        <form id="updateStatusForm" class="starling-form">
+          <div class="form-group">
+            <label for="order_id"><i class="fas fa-receipt"></i> Order ID</label>
+            <input type="text" id="order_id" placeholder="Enter order ID" required>
+            <div id="orderInfo" style="margin-top: 6px; font-size: 0.9rem; color: var(--accent); display: none;"></div>
+          </div>
+          <div class="form-group">
+            <label for="status"><i class="fas fa-truck"></i> Status</label>
+            <select id="status" required>
+              <option value="">Select Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Preparing">Preparing</option>
+              <option value="Out for Delivery">Out for Delivery</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="emoji"><i class="fas fa-smile"></i> Status Emoji</label>
+            <input type="text" id="emoji" placeholder="e.g. 🍔, 🚚, ✅" required>
+          </div>
+          <button type="submit" class="glow">
+            <i class="fas fa-sync-alt"></i> Update Status
+          </button>
+        </form>
+        <a href="dashboard.html" class="back-link float"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+      </div>
+    </div>
+
+    <footer class="admin-footer">
+      <!-- Footer content if needed -->
+    </footer>
+  </div>
+
+  <script src="../main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('updateStatusForm');
+      const orderIdInput = document.getElementById('order_id');
+      const statusSelect = document.getElementById('status');
+      const emojiInput = document.getElementById('emoji');
+      const orderInfo = document.getElementById('orderInfo');
+
+      const defaultEmojis = {
+        'Pending': '⏳',
+        'Confirmed': '✅',
+        'Preparing': '🍳',
+        'Out for Delivery': '🚚',
+        'Delivered': '🎉',
+        'Cancelled': '❌'
+      };
+
+      // Auto-populate default emoji when status is selected
+      statusSelect.addEventListener('change', () => {
+        const selected = statusSelect.value;
+        if (defaultEmojis[selected]) {
+          emojiInput.value = defaultEmojis[selected];
+        }
+      });
+
+      // Show current status when order ID is entered
+      async function fetchCurrentStatus() {
+        const orderId = orderIdInput.value.trim();
+        if (!orderId) {
+          if (orderInfo) orderInfo.style.display = 'none';
+          return;
+        }
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+
+          const res = await fetch(`/api/orders/track/${orderId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (orderInfo) {
+              orderInfo.style.display = 'block';
+              orderInfo.innerHTML = `<span><strong>Current Status:</strong> ${data.status} ${data.statusEmoji || ''}</span>`;
+            }
+          } else {
+            if (orderInfo) {
+              orderInfo.style.display = 'block';
+              orderInfo.innerHTML = `<span style="color: var(--error);">Order #${orderId} not found</span>`;
+            }
+          }
+        } catch (err) {
+          // Ignore background fetch error
+        }
+      }
+
+      orderIdInput.addEventListener('change', fetchCurrentStatus);
+      orderIdInput.addEventListener('blur', fetchCurrentStatus);
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const order_id = document.getElementById('order_id').value.trim();
+          const status = document.getElementById('status').value;
+          const statusEmoji = document.getElementById('emoji').value.trim();
+        
+          if (!order_id || !status || !statusEmoji) {
+            alert('Please fill in all fields');
+            return;
+          }
+        
+          try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+              throw new Error('No authentication token found. Please log in.');
+            }
+
+            const response = await fetch(`/api/orders/update/${order_id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ status, statusEmoji }),
+            });
+          
+            if (!response.ok) {
+              let errorMsg = `Request failed with status ${response.status}`;
+              try {
+                const errData = await response.json();
+                if (errData && errData.message) {
+                  errorMsg = errData.message;
+                }
+              } catch (_) {
+                const text = await response.text();
+                if (text) errorMsg = text;
+              }
+              throw new Error(errorMsg);
+            }
+          
+            const data = await response.json();
+            alert(`Status updated successfully: ${data.status || status} ${data.statusEmoji || statusEmoji}`);
+            window.location.href = 'dashboard.html';
+          } catch (error) {
+            console.error('Error updating status:', error);
+            alert(`Failed to update status: ${error.message}`);
+          }
+        });
+      } else {
+        console.error('Form with ID "updateStatusForm" not found');
+      }
+    });
+    
+    protect('admin');
+  </script>
+</body>
+</html>
