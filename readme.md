@@ -267,16 +267,7 @@ node backend/test.js
 
 ---
 
-## 📬 Author & Contact
-
-> **Lakshana G S**  
-> 🐙 GitHub: [@lakshana-gs](https://github.com/lakshana-gs)  
-> 📧 Email: [lakshanaganesh08@gmail.com](mailto:lakshanaganesh08@gmail.com)  
-
----
-
 ## 📜 License
 
 This project is licensed under the **MIT License**.
 
-Made with 💖 by **Lakshana G S** ✨
