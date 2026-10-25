@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Coupons & Promos - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .admin-table th {
+      background: var(--bg-muted);
+      padding: 14px 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td {
+      background: #faf8f5;
+    }
+  </style>
+</head>
+<body style="background: #f8fafc; min-height: 100vh;">
+
+  <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #ec4899, #be185d); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
+          🏷️
+        </div>
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Coupons & Promotions</h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Create discount codes, set minimum order rules, and control campaigns</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button onclick="openAddCouponModal()" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus"></i> Create New Coupon
+        </button>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">
+          <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Subnavigation Bar -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn active"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <!-- Coupons Table Container -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Promo Code</th>
+              <th>Benefit / Discount</th>
+              <th>Min. Order</th>
+              <th>Max. Cap</th>
+              <th>Description</th>
+              <th>Expires On</th>
+              <th>Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="couponsTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 10px;">Loading coupons from database...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Coupon Modal -->
+  <div id="couponModal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent);">
+          Create New Promo Coupon
+        </h3>
+        <button onclick="closeCouponModal()" class="modal-close">&times;</button>
+      </div>
+
+      <form id="couponForm" onsubmit="handleCouponSubmit(event)">
+        <div style="margin-bottom: 14px;">
+          <label class="form-label" for="couponCode">Promo Code * (Uppercase, e.g. FEAST25)</label>
+          <input type="text" id="couponCode" class="form-input" placeholder="e.g. FEAST25" style="text-transform: uppercase; font-family: monospace; font-weight: 700; letter-spacing: 1px;" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label class="form-label" for="discountType">Discount Type *</label>
+            <select id="discountType" class="form-input" onchange="toggleDiscountFields()">
+              <option value="percent">Percentage Off (%)</option>
+              <option value="fixed">Flat Amount Off (Rs.)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="discountVal" id="discountValLabel">Percentage (%) *</label>
+            <input type="number" id="discountVal" class="form-input" placeholder="20" min="1" max="100" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label class="form-label" for="minOrder">Min Order Amount (Rs.)</label>
+            <input type="number" id="minOrder" class="form-input" placeholder="200" min="0" step="10" value="0">
+          </div>
+          <div id="maxDiscountWrap">
+            <label class="form-label" for="maxDiscount">Max Discount Cap (Rs.)</label>
+            <input type="number" id="maxDiscount" class="form-input" placeholder="e.g. 150" min="1">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label class="form-label" for="expiryDate">Expiration Date (Optional)</label>
+          <input type="date" id="expiryDate" class="form-input">
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label class="form-label" for="couponDesc">Description / Marketing Text</label>
+          <input type="text" id="couponDesc" class="form-input" placeholder="e.g. 25% off up to Rs. 150 on orders above Rs. 200">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" onclick="closeCouponModal()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="saveCouponBtn" class="btn btn-primary">
+            <i class="fas fa-check"></i> Create Coupon
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../main.js"></script>
+  <script>
+    protect('admin');
+
+    let allCoupons = [];
+
+    async function loadCoupons() {
+      try {
+        const res = await fetch('/api/coupons/admin', {
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) throw new Error('Failed to load coupons');
+        allCoupons = await res.json();
+        renderCoupons(allCoupons);
+      } catch (err) {
+        console.error('Error loading coupons:', err);
+        document.getElementById('couponsTableBody').innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--error);">
+              <i class="fas fa-exclamation-triangle fa-2x"></i>
+              <p style="margin-top: 10px;">${err.message}</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderCoupons(coupons) {
+      const tbody = document.getElementById('couponsTableBody');
+
+      if (coupons.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <p style="font-size: 1.1rem; margin: 0;">No coupon promotions created yet.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = coupons.map(c => {
+        const benefit = c.discount_percent > 0 
+          ? `<span style="font-weight: 800; color: var(--primary);">${c.discount_percent}% OFF</span>`
+          : `<span style="font-weight: 800; color: #10b981;">Rs. ${parseFloat(c.discount_amount).toFixed(2)} FLAT</span>`;
+
+        const minOrder = parseFloat(c.min_order) > 0 
+          ? `Rs. ${parseFloat(c.min_order).toFixed(2)}` 
+          : '<span style="color: var(--text-muted);">No min.</span>';
+
+        const maxCap = c.max_discount 
+          ? `Rs. ${parseFloat(c.max_discount).toFixed(2)}` 
+          : '<span style="color: var(--text-muted);">No cap</span>';
+
+        const expiry = c.expiry_date 
+          ? new Date(c.expiry_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '<span style="color: var(--text-muted);">Never expires</span>';
+
+        const isActive = c.is_active === 1 || c.is_active === true;
+        const statusBadge = isActive
+          ? `<span style="background: #ecfdf5; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;"><i class="fas fa-check-circle"></i> Active</span>`
+          : `<span style="background: #fef2f2; color: #991b1b; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;"><i class="fas fa-pause-circle"></i> Inactive</span>`;
+
+        return `
+          <tr>
+            <td>
+              <span style="font-family: monospace; font-weight: 800; font-size: 1rem; background: #fdf2f8; color: #be185d; padding: 4px 10px; border-radius: 6px; border: 1px dashed #f472b6;">
+                ${escapeHtml(c.code)}
+              </span>
+            </td>
+            <td>${benefit}</td>
+            <td style="font-weight: 600;">${minOrder}</td>
+            <td style="font-weight: 600;">${maxCap}</td>
+            <td style="color: var(--text-muted); font-size: 0.85rem; max-width: 250px;">${escapeHtml(c.description || '-')}</td>
+            <td style="font-size: 0.85rem; color: var(--text-muted);">${expiry}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                <button onclick="toggleCoupon('${escapeHtml(c.code)}', ${isActive ? 0 : 1})" class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'}" title="${isActive ? 'Deactivate promo' : 'Activate promo'}">
+                  <i class="fas ${isActive ? 'fa-pause' : 'fa-play'}"></i>
+                </button>
+                <button onclick="deleteCoupon('${escapeHtml(c.code)}')" class="btn btn-sm btn-outline-danger" title="Delete promo">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleDiscountFields() {
+      const type = document.getElementById('discountType').value;
+      const label = document.getElementById('discountValLabel');
+      const input = document.getElementById('discountVal');
+      const maxWrap = document.getElementById('maxDiscountWrap');
+
+      if (type === 'percent') {
+        label.textContent = 'Percentage (%) *';
+        input.max = '100';
+        input.placeholder = '20';
+        maxWrap.style.display = 'block';
+      } else {
+        label.textContent = 'Flat Amount (Rs.) *';
+        input.removeAttribute('max');
+        input.placeholder = '50';
+        maxWrap.style.display = 'none';
+      }
+    }
+
+    function openAddCouponModal() {
+      document.getElementById('couponCode').value = '';
+      document.getElementById('discountType').value = 'percent';
+      toggleDiscountFields();
+      document.getElementById('discountVal').value = '';
+      document.getElementById('minOrder').value = '0';
+      document.getElementById('maxDiscount').value = '';
+      document.getElementById('expiryDate').value = '';
+      document.getElementById('couponDesc').value = '';
+      document.getElementById('couponModal').classList.add('active');
+    }
+
+    function closeCouponModal() {
+      document.getElementById('couponModal').classList.remove('active');
+    }
+
+    async function handleCouponSubmit(e) {
+      e.preventDefault();
+
+      const type = document.getElementById('discountType').value;
+      const val = parseFloat(document.getElementById('discountVal').value);
+
+      const payload = {
+        code: document.getElementById('couponCode').value.trim().toUpperCase(),
+        discount_percent: type === 'percent' ? val : 0,
+        discount_amount: type === 'fixed' ? val : 0,
+        min_order: parseFloat(document.getElementById('minOrder').value) || 0,
+        max_discount: document.getElementById('maxDiscount').value ? parseFloat(document.getElementById('maxDiscount').value) : null,
+        expiry_date: document.getElementById('expiryDate').value || null,
+        description: document.getElementById('couponDesc').value.trim()
+      };
+
+      const btn = document.getElementById('saveCouponBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+      try {
+        const res = await fetch('/api/coupons/admin', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to create coupon');
+
+        showToast(data.message, 'success');
+        closeCouponModal();
+        loadCoupons();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Create Coupon';
+      }
+    }
+
+    async function toggleCoupon(code, targetActive) {
+      try {
+        const res = await fetch(`/api/coupons/admin/${encodeURIComponent(code)}/toggle`, {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ is_active: targetActive })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update coupon');
+
+        showToast(data.message, 'success');
+        loadCoupons();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function deleteCoupon(code) {
+      if (!confirm(`Are you sure you want to delete coupon "${code}"?`)) return;
+
+      try {
+        const res = await fetch(`/api/coupons/admin/${encodeURIComponent(code)}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to delete coupon');
+
+        showToast(data.message, 'info');
+        loadCoupons();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    loadCoupons();
+  </script>
+</body>
+</html>

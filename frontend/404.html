@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found | Chef Deliver & Track</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header class="site-header"></header>
+
+  <main class="container" style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 20px;">
+    <div class="empty-state" style="max-width: 520px;">
+      <div class="empty-state-icon" style="font-size: 5rem;">🍔💨</div>
+      <h1 class="empty-state-title" style="font-size: 2rem; margin-bottom: 10px;">Page Not Found</h1>
+      <p class="empty-state-desc" style="font-size: 1.05rem; margin-bottom: 28px;">
+        Oops! Looks like the dish or page you're looking for was delivered somewhere else or doesn't exist.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+        <a href="index.html" class="btn btn-primary">
+          <i class="fas fa-home"></i> Back to Home
+        </a>
+        <a href="customer/menu.html" class="btn btn-secondary">
+          <i class="fas fa-utensils"></i> Browse Menu
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script src="main.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+  </script>
+</body>
+</html>

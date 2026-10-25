@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Shopping Cart - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .cart-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .cart-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .cart-item-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px dashed var(--border-light);
+    }
+    .cart-item-row:last-child {
+      border-bottom: none;
+    }
+    .item-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--bg-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-full);
+      background: white;
+      overflow: hidden;
+    }
+    .qty-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background var(--transition-fast);
+    }
+    .qty-btn:hover {
+      background: var(--bg-muted);
+    }
+    .qty-number {
+      font-weight: 700;
+      min-width: 28px;
+      text-align: center;
+      font-size: 0.92rem;
+    }
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .summary-line.total {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent);
+      padding-top: 14px;
+      border-top: 1px solid var(--border-light);
+      margin-top: 14px;
+    }
+    .coupon-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+    .coupon-box input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      outline: none;
+    }
+    .coupon-box input:focus {
+      border-color: var(--primary);
+    }
+    @media (max-width: 900px) {
+      .cart-grid {
+        grid-template-columns: 1fr;
+      }
+      .cart-item-row {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
+
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <!-- Breadcrumb & Header -->
+    <div style="margin-bottom: 24px;">
+      <a href="menu.html" style="color: var(--primary-dark); font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+        ← Continue Shopping
+      </a>
+      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-top: 8px;">Shopping Cart</h1>
+    </div>
+
+    <!-- Loading State -->
+    <div id="cartLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 12px;">Loading your cart items...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyCartView" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">🛒</div>
+      <h2 class="empty-state-title">Your Cart is Currently Empty</h2>
+      <p class="empty-state-desc">You haven't added any delicious food to your cart yet. Explore our mouthwatering menu to get started!</p>
+      <a href="menu.html" class="btn btn-primary">
+        <i class="fas fa-utensils"></i> Browse Menu
+      </a>
+    </div>
+
+    <!-- Active Cart Content -->
+    <div id="cartContentView" class="cart-grid" style="display: none;">
+      <!-- Items Column -->
+      <div class="cart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin: 0;">Order Items</h2>
+          <button onclick="confirmClearCart()" class="btn btn-sm btn-outline-danger" title="Clear Cart">
+            <i class="fas fa-trash-can"></i> Clear Cart
+          </button>
+        </div>
+
+        <div id="cartItemsList"></div>
+      </div>
+
+      <!-- Order Summary Column (Sticky) -->
+      <div class="cart-card" style="position: sticky; top: 96px;">
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 18px;">Bill Details</h2>
+
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <span id="subtotalDisplay" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+        </div>
+
+        <div class="summary-line">
+          <span>Delivery Partner Fee</span>
+          <span id="deliveryFeeDisplay" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+        </div>
+
+        <div id="discountLine" class="summary-line" style="display: none; color: var(--success);">
+          <span>Promo Discount</span>
+          <span id="discountDisplay" style="font-weight: 700;">- Rs. 0.00</span>
+        </div>
+
+        <div class="summary-line total">
+          <span>Total Payable</span>
+          <span id="totalDisplay">Rs. 0.00</span>
+        </div>
+
+        <!-- Coupon Code Input -->
+        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
+          <label for="couponInput" style="font-size: 0.88rem; font-weight: 600; color: var(--accent);">Have a Promo Code?</label>
+          <div class="coupon-box">
+            <input type="text" id="couponInput" placeholder="Enter coupon (e.g. WELCOME20)">
+            <button class="btn btn-secondary btn-sm" onclick="applyCoupon()">Apply</button>
+          </div>
+          <div id="appliedCouponBadge" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; justify-content: space-between; align-items: center;">
+            <span id="appliedCouponText"></span>
+            <button onclick="removeCoupon()" style="background: none; border: none; color: #065f46; cursor: pointer; font-weight: 700;">✕</button>
+          </div>
+        </div>
+
+        <!-- Free Delivery Hint -->
+        <div id="freeShipNotice" style="background: var(--bg-muted); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; color: var(--text-muted); margin-top: 16px;">
+          <i class="fas fa-truck-fast" style="color: var(--primary);"></i> Free delivery on orders of Rs. 300 or above!
+        </div>
+
+        <!-- Checkout Action -->
+        <div style="margin-top: 24px;">
+          <a href="checkout.html" id="proceedBtn" class="btn btn-primary btn-block btn-lg">
+            Proceed to Checkout <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script src="../main.js"></script>
+  <script>
+    renderNavbar('cart');
+    renderFooter();
+
+    async function loadCart() {
+      const token = getToken();
+      if (!token) {
+        document.getElementById('cartLoading').style.display = 'none';
+        document.getElementById('emptyCartView').style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/orders/cart', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to load cart');
+
+        const data = await res.json();
+        document.getElementById('cartLoading').style.display = 'none';
+
+        if (!data.items || data.items.length === 0) {
+          document.getElementById('emptyCartView').style.display = 'block';
+          document.getElementById('cartContentView').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('emptyCartView').style.display = 'none';
+        document.getElementById('cartContentView').style.display = 'grid';
+
+        // Render items
+        const list = document.getElementById('cartItemsList');
+        list.innerHTML = data.items.map(item => `
+          <div class="cart-item-row" data-id="${item.menuId}">
+            <div class="item-icon-box">${item.emoji || '🍽️'}</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="dietary-mark ${(item.dietary || '').toLowerCase() === 'veg' ? 'veg' : 'non-veg'}"></span>
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">${item.name}</h4>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+                Rs. ${item.unitPrice.toFixed(2)} each
+              </div>
+            </div>
+
+            <div class="qty-control">
+              <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity - 1})">-</button>
+              <span class="qty-number">${item.quantity}</span>
+              <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity + 1})">+</button>
+            </div>
+
+            <div style="font-weight: 800; color: var(--accent); font-size: 1rem; min-width: 80px; text-align: right;">
+              Rs. ${item.total.toFixed(2)}
+            </div>
+
+            <button onclick="removeItem(${item.menuId})" style="border: none; background: none; color: #9ca3af; cursor: pointer; padding: 6px;" title="Remove Item">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        `).join('');
+
+        // Summary details
+        document.getElementById('subtotalDisplay').textContent = `Rs. ${data.subtotal.toFixed(2)}`;
+        document.getElementById('deliveryFeeDisplay').textContent = data.deliveryFee === 0 ? 'FREE' : `Rs. ${data.deliveryFee.toFixed(2)}`;
+        
+        if (data.discount > 0) {
+          document.getElementById('discountLine').style.display = 'flex';
+          document.getElementById('discountDisplay').textContent = `- Rs. ${data.discount.toFixed(2)}`;
+        } else {
+          document.getElementById('discountLine').style.display = 'none';
+        }
+
+        document.getElementById('totalDisplay').textContent = `Rs. ${data.total.toFixed(2)}`;
+
+        // Active coupon display
+        if (data.couponCode) {
+          document.getElementById('couponInput').value = data.couponCode;
+          document.getElementById('appliedCouponBadge').style.display = 'flex';
+          document.getElementById('appliedCouponText').textContent = `Coupon "${data.couponCode}" applied!`;
+        } else {
+          document.getElementById('appliedCouponBadge').style.display = 'none';
+        }
+
+        updateCartCount();
+      } catch (err) {
+        console.error('Cart load error:', err);
+        document.getElementById('cartLoading').innerHTML = `
+          <div style="color: var(--error);">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+            <p style="margin-top: 10px;">Failed to load cart. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    async function updateQty(menuId, newQty) {
+      const token = getToken();
+      try {
+        const res = await fetch('/api/orders/cart/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ menuId, quantity: newQty })
+        });
+        if (res.ok) {
+          loadCart();
+        }
+      } catch (e) {
+        showToast('Error updating quantity', 'error');
+      }
+    }
+
+    async function removeItem(menuId) {
+      const token = getToken();
+      try {
+        const res = await fetch(`/api/orders/cart/item/${menuId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          showToast('Item removed from cart', 'info');
+          loadCart();
+        }
+      } catch (e) {
+        showToast('Error removing item', 'error');
+      }
+    }
+
+    async function confirmClearCart() {
+      if (!confirm('Are you sure you want to remove all items from your cart?')) return;
+      const token = getToken();
+      try {
+        const res = await fetch('/api/orders/cart/clear', {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          showToast('Cart cleared', 'info');
+          loadCart();
+        }
+      } catch (e) {
+        showToast('Error clearing cart', 'error');
+      }
+    }
+
+    async function applyCoupon() {
+      const code = document.getElementById('couponInput').value.trim();
+      if (!code) {
+        showToast('Please enter a coupon code', 'info');
+        return;
+      }
+      const token = getToken();
+      try {
+        const res = await fetch('/api/orders/cart/coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ couponCode: code })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message, 'success');
+          loadCart();
+        } else {
+          showToast(data.message || 'Invalid coupon', 'error');
+        }
+      } catch (e) {
+        showToast('Error applying coupon', 'error');
+      }
+    }
+
+    async function removeCoupon() {
+      const token = getToken();
+      try {
+        const res = await fetch('/api/orders/cart/coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ couponCode: '' })
+        });
+        if (res.ok) {
+          showToast('Coupon removed', 'info');
+          document.getElementById('couponInput').value = '';
+          loadCart();
+        }
+      } catch (e) {
+        showToast('Error removing coupon', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCart);
+  </script>
+</body>
+</html>

@@ -1,264 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu - Chef Deliver and Track</title>
-    <link rel="stylesheet" href="../css/Pages.css">
-    <style>
-        /* Additional menu-specific styles */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--space-lg);
-        }
-        
-        .menu-card {
-            background: var(--secondary-light);
-            border-radius: 8px;
-            padding: var(--space-lg);
-            border-left: 4px solid var(--primary-dark);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .menu-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-        }
-        
-        .menu-card h3 {
-            margin-bottom: var(--space-sm);
-            color: var(--accent);
-        }
-        
-        .menu-card .price {
-            font-weight: 600;
-            color: var(--primary-darker);
-            margin: var(--space-sm) 0;
-            font-size: var(--font-lg);
-        }
-        
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            padding: var(--space-sm) 0;
-            border-bottom: 1px dashed var(--border);
-        }
-        
-        .empty-cart {
-            color: var(--accent-light);
-            font-style: italic;
-            padding: var(--space-md);
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Our Delicious Menu - Chef Deliver & Track</title>
+  <meta name="description" content="Explore freshly prepared vegetarian and non-vegetarian gourmet dishes, burgers, pizzas, and desserts. Order online with quick delivery.">
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .filter-panel {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .search-input-wrap {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .search-input-wrap input {
+      width: 100%;
+      padding: 10px 16px 10px 38px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-full);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .search-input-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+    .dietary-btn-group {
+      display: flex;
+      background: var(--bg-muted);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      gap: 4px;
+    }
+    .dietary-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dietary-btn.active {
+      background: white;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+    .sort-select {
+      padding: 8px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-main);
+      background: white;
+      outline: none;
+      cursor: pointer;
+    }
+    .floating-cart-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-xl);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform var(--transition-fast);
+      border: 2px solid var(--primary);
+    }
+    .floating-cart-bar:hover {
+      transform: translateX(-50%) translateY(-2px);
+    }
+  </style>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="admin-header">
-            <div class="header-content">
-                <h1>Chef Deliver and Track</h1>
-                <p class="admin-subtitle">Menu Selection</p>
-            </div>
-        </header>
 
-        <main class="dashboard-main">
-            <div class="action-bar">
-                <a href="track-order.html" class="btn btn-secondary">Track Order</a>
-                <a href="order-history.html" class="btn btn-secondary">View Recent Orders</a>
-                <a href="../login.html" class="btn logout-btn">Logout</a>
-            </div>
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
 
-            <div class="flex" style="gap: var(--space-xl); align-items: flex-start;">
-                <div class="form-card" style="flex: 2;">
-                    <h2>Our Menu</h2>
-                    <div id="menu-items" class="menu-grid">
-                        <div class="loading">Loading menu...</div>
-                    </div>
-                </div>
-
-                <div class="form-card" style="flex: 1; position: sticky; top: var(--space-xl);">
-                    <h2>Your Cart</h2>
-                    <ul id="cart-items">
-                        <li class="empty-cart">Your cart is empty</li>
-                    </ul>
-                    <div class="cart-total" style="margin-top: var(--space-lg); padding: var(--space-md); background: var(--secondary); border-radius: 8px;">
-                        <p style="font-weight: 600; text-align: right;">Total Rs. <span id="cart-total">0.00</span></p>
-                    </div>
-                    <button id="checkout-btn" class="btn btn-primary" disabled style="width: 100%; margin-top: var(--space-md);">
-                        Proceed to Checkout
-                    </button>
-                </div>
-            </div>
-        </main>
+  <main class="container" style="padding-top: 32px; padding-bottom: 80px;">
+    <!-- Page Title & Subtitle -->
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">Our Gourmet Menu</h1>
+      <p style="color: var(--text-muted); font-size: 1rem;">Handcrafted meals cooked to order with farm-fresh ingredients.</p>
     </div>
 
-    <script>
-        // Cart state
-        let cart = [];
-        
-        // Fetch menu items from backend
-        async function fetchMenuItems() {
-            try {
-                const response = await fetch('/api/menu', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-                    }
-                });
-                
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                
-                const menuItems = await response.json();
-                displayMenuItems(menuItems);
-            } catch (error) {
-                console.error('Error fetching menu:', error);
-                document.getElementById('menu-items').innerHTML = `
-                    <div class="menu-card error">
-                        <h3>Error Loading Menu</h3>
-                        <p>Please try again later</p>
-                    </div>
-                `;
-            }
+    <!-- Category Filter Bar -->
+    <div id="categoryBar" class="category-bar" style="margin-bottom: 20px;">
+      <button class="category-pill active" onclick="setCategory('All', this)"><span>🍽️</span> All Items</button>
+      <button class="category-pill" onclick="setCategory('Burgers', this)"><span>🍔</span> Burgers</button>
+      <button class="category-pill" onclick="setCategory('Pizzas', this)"><span>🍕</span> Pizzas</button>
+      <button class="category-pill" onclick="setCategory('Sandwiches', this)"><span>🥪</span> Sandwiches</button>
+      <button class="category-pill" onclick="setCategory('Biryani & Mains', this)"><span>🍗</span> Biryani & Mains</button>
+      <button class="category-pill" onclick="setCategory('South Indian', this)"><span>🥞</span> South Indian</button>
+      <button class="category-pill" onclick="setCategory('Sides', this)"><span>🍟</span> Sides</button>
+      <button class="category-pill" onclick="setCategory('Wraps', this)"><span>🌯</span> Wraps</button>
+      <button class="category-pill" onclick="setCategory('Desserts', this)"><span>🍰</span> Desserts</button>
+    </div>
+
+    <!-- Filter & Search Panel -->
+    <div class="filter-panel">
+      <div class="filter-row">
+        <!-- Search input with instant debounce -->
+        <div class="search-input-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="menuSearchInput" placeholder="Search dish by name, ingredients, or cuisine..." oninput="debounceSearch()">
+        </div>
+
+        <!-- Dietary Filter -->
+        <div class="dietary-btn-group">
+          <button class="dietary-btn active" data-dietary="All" onclick="setDietary('All', this)">All</button>
+          <button class="dietary-btn" data-dietary="Veg" onclick="setDietary('Veg', this)">
+            <span class="dietary-mark veg"></span> Pure Veg
+          </button>
+          <button class="dietary-btn" data-dietary="Non-Veg" onclick="setDietary('Non-Veg', this)">
+            <span class="dietary-mark non-veg"></span> Non-Veg
+          </button>
+        </div>
+
+        <!-- Sorting -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Sort By:</span>
+          <select id="sortSelect" class="sort-select" onchange="applyFilters()">
+            <option value="popular">Most Popular</option>
+            <option value="rating">Highest Rated</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Food Cards Grid -->
+    <div id="menuGrid" class="food-grid">
+      <div style="grid-column: 1/-1; text-align: center; padding: 60px 0; color: var(--text-muted);">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p style="margin-top: 12px;">Loading delicious menu items...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Quick Cart Bar (Visible when cart has items) -->
+  <a href="cart.html" id="floatingCartBar" class="floating-cart-bar" style="display: none;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <i class="fas fa-shopping-bag"></i>
+      <span id="floatingCartCount">0 items in cart</span>
+    </div>
+    <span style="font-weight: 700; color: var(--primary);">View Cart →</span>
+  </a>
+
+  <!-- Food Item Detail Modal (Phase 2 & 7) -->
+  <dialog id="foodDetailModal" class="app-modal">
+    <div class="modal-header">
+      <h3 id="modalFoodTitle">Food Details</h3>
+      <button class="modal-close-btn" onclick="closeModal('foodDetailModal')" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align: center; background: linear-gradient(135deg, #fff7ed, #fef3c7); padding: 24px; border-radius: var(--radius-md); margin-bottom: 18px;">
+        <span id="modalFoodEmoji" style="font-size: 5rem; display: block;">🍽️</span>
+        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
+          <span id="modalFoodDietary" class="category-tag"></span>
+          <span id="modalFoodCategory" class="category-tag"></span>
+          <span id="modalFoodRating" class="rating-badge"></span>
+        </div>
+      </div>
+
+      <p id="modalFoodDesc" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; font-size: 0.95rem;"></p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--bg-muted); padding: 14px; border-radius: var(--radius-md); font-size: 0.88rem; margin-bottom: 20px;">
+        <div><strong>Prep Time:</strong> <span id="modalFoodPrep"></span> mins</div>
+        <div><strong>Status:</strong> <span id="modalFoodAvail" style="color: var(--success); font-weight: 600;">Available</span></div>
+      </div>
+
+      <!-- Frequently Bought Together section inside modal (Phase 3) -->
+      <div id="modalPairingsSection" style="margin-bottom: 20px; display: none;">
+        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Frequently Paired With:</h4>
+        <div id="modalPairingsList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Item Price</span>
+          <div id="modalFoodPrice" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">Rs. 0.00</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-full); background: white;">
+            <button onclick="adjustModalQty(-1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">-</button>
+            <span id="modalQtyDisplay" style="font-weight: 700; min-width: 20px; text-align: center;">1</span>
+            <button onclick="adjustModalQty(1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">+</button>
+          </div>
+          <button id="modalAddToCartBtn" class="btn btn-primary" onclick="addModalItemToCart()">
+            <i class="fas fa-shopping-bag"></i> Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dynamic Footer -->
+  <footer class="site-footer"></footer>
+
+  <script src="../main.js"></script>
+  <script>
+    renderNavbar('menu');
+    renderFooter();
+
+    let currentCategory = 'All';
+    let currentDietary = 'All';
+    let searchDebounceTimer = null;
+    let activeModalItem = null;
+    let modalQuantity = 1;
+
+    // Read URL query parameters (e.g. ?category=Burgers or ?search=pizza)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('category')) {
+      currentCategory = urlParams.get('category');
+    }
+    if (urlParams.get('search')) {
+      document.getElementById('menuSearchInput').value = urlParams.get('search');
+    }
+    if (urlParams.get('sort')) {
+      document.getElementById('sortSelect').value = urlParams.get('sort');
+    }
+
+    // Set active category pill
+    function setCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('#categoryBar .category-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilters();
+    }
+
+    // Set active dietary filter
+    function setDietary(diet, btn) {
+      currentDietary = diet;
+      document.querySelectorAll('.dietary-btn-group .dietary-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilters();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(applyFilters, 300);
+    }
+
+    async function applyFilters() {
+      const container = document.getElementById('menuGrid');
+      const search = document.getElementById('menuSearchInput').value.trim();
+      const sort = document.getElementById('sortSelect').value;
+
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p style="margin-top: 10px;">Finding dishes...</p>
+        </div>
+      `;
+
+      try {
+        const params = new URLSearchParams();
+        if (currentCategory && currentCategory !== 'All') params.set('category', currentCategory);
+        if (currentDietary && currentDietary !== 'All') params.set('dietary', currentDietary);
+        if (search) params.set('search', search);
+        if (sort) params.set('sort', sort);
+
+        const res = await fetch(`/api/menu?${params.toString()}`);
+        if (!res.ok) throw new Error('Failed to load menu items');
+
+        const items = await res.json();
+
+        if (items.length === 0) {
+          container.innerHTML = `
+            <div style="grid-column: 1/-1;" class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <h3 class="empty-state-title">No Dishes Match Your Search</h3>
+              <p class="empty-state-desc">Try clearing your dietary filters, searching for a different keyword, or exploring another category.</p>
+              <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset All Filters</button>
+            </div>
+          `;
+          return;
         }
 
-        // Display menu items
-        function displayMenuItems(items) {
-            const menuContainer = document.getElementById('menu-items');
-            menuContainer.innerHTML = '';
-            
-            if (!items || items.length === 0) {
-                menuContainer.innerHTML = `
-                    <div class="menu-card">
-                        <h3>No Menu Items</h3>
-                        <p>No items available at this time</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            items.forEach(item => {
-                const itemElement = document.createElement('div');
-                itemElement.className = 'menu-card';
-                itemElement.innerHTML = `
-                    <h3>${item.name} ${item.emoji || ''}</h3>
-                    <p class="description">${item.description || ''}</p>
-                    <p class="price"> Rs. ${Number(item.price).toFixed(2)}</p>
-                    <button onclick="addToCart(${item.id}, '${item.name}', ${item.price})" 
-                            class="btn btn-primary" style="margin-top: auto;">
-                        Add to Cart
-                    </button>
-                `;
-                menuContainer.appendChild(itemElement);
+        container.innerHTML = items.map(item => renderFoodCard(item)).join('');
+        checkFavourites();
+        checkCartFloating();
+      } catch (err) {
+        console.error('Menu load error:', err);
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--error);">
+            <i class="fas fa-exclamation-circle fa-2x"></i>
+            <p style="margin-top: 10px;">Failed to load menu items. Please check your connection and try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('menuSearchInput').value = '';
+      currentCategory = 'All';
+      currentDietary = 'All';
+      document.querySelectorAll('#categoryBar .category-pill').forEach(b => b.classList.remove('active'));
+      const allPill = document.querySelector('#categoryBar .category-pill');
+      if (allPill) allPill.classList.add('active');
+
+      document.querySelectorAll('.dietary-btn-group .dietary-btn').forEach(b => b.classList.remove('active'));
+      const allDiet = document.querySelector('.dietary-btn-group .dietary-btn');
+      if (allDiet) allDiet.classList.add('active');
+
+      applyFilters();
+    }
+
+    function renderFoodCard(item) {
+      const isVeg = (item.dietary || '').toLowerCase() === 'veg';
+      const price = parseFloat(item.price).toFixed(2);
+      const isAvailable = Boolean(item.is_available);
+
+      return `
+        <div class="food-card" data-id="${item.id}">
+          <div class="food-card-media" onclick="openItemModal(${item.id})">
+            <span class="food-card-emoji">${item.emoji || '🍽️'}</span>
+            <span class="food-card-prep"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
+            ${!isAvailable ? '<span class="sold-out-badge">Sold Out</span>' : ''}
+            <button class="favourite-btn" data-fav-id="${item.id}" onclick="event.stopPropagation(); toggleFavouriteApi(${item.id}, this)" title="Save to Favourites">
+              <i class="far fa-heart"></i>
+            </button>
+          </div>
+
+          <div class="food-card-body">
+            <div class="food-card-header">
+              <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}" title="${item.dietary || 'Dish'}"></span>
+              <span class="rating-badge">★ ${item.rating || '4.5'}</span>
+            </div>
+
+            <h3 class="food-card-title" onclick="openItemModal(${item.id})">${item.name}</h3>
+            <p class="food-card-desc">${item.description || 'Deliciously prepared with selected fresh ingredients.'}</p>
+
+            <div class="food-card-footer">
+              <div class="food-price">Rs. ${price}</div>
+              ${isAvailable ? `
+                <button class="add-btn" onclick="handleAddToCart(${item.id})">
+                  <i class="fas fa-plus"></i> Add
+                </button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" disabled>Sold Out</button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function handleAddToCart(menuId) {
+      const success = await addToCartApi(menuId, 1);
+      if (success) {
+        checkCartFloating();
+      }
+    }
+
+    // Check favourites
+    async function checkFavourites() {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const res = await fetch('/api/favourites/ids', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const ids = await res.json();
+          ids.forEach(id => {
+            const btns = document.querySelectorAll(`[data-fav-id="${id}"]`);
+            btns.forEach(btn => {
+              btn.classList.add('active');
+              btn.innerHTML = '<i class="fas fa-heart" style="color: #dc2626;"></i>';
             });
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Check cart floating bar
+    async function checkCartFloating() {
+      const token = getToken();
+      const bar = document.getElementById('floatingCartBar');
+      const countEl = document.getElementById('floatingCartCount');
+      if (!token || !bar) return;
+
+      try {
+        const res = await fetch('/api/orders/cart', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+          if (count > 0) {
+            bar.style.display = 'flex';
+            countEl.textContent = `${count} item${count > 1 ? 's' : ''} in cart (Rs. ${data.total.toFixed(2)})`;
+          } else {
+            bar.style.display = 'none';
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Detail Modal with Frequently Bought Together pairings
+    async function openItemModal(itemId) {
+      try {
+        const res = await fetch(`/api/menu/${itemId}`);
+        if (!res.ok) return;
+        const item = await res.json();
+        activeModalItem = item;
+        modalQuantity = 1;
+
+        document.getElementById('modalFoodTitle').textContent = item.name;
+        document.getElementById('modalFoodEmoji').textContent = item.emoji || '🍽️';
+        document.getElementById('modalFoodDietary').textContent = item.dietary || 'Standard';
+        document.getElementById('modalFoodCategory').textContent = item.category || 'Special';
+        document.getElementById('modalFoodRating').textContent = `★ ${item.rating || '4.5'} (${item.rating_count || 12} reviews)`;
+        document.getElementById('modalFoodDesc').textContent = item.description || 'Fresh gourmet meal prepared by our expert kitchen staff using selected quality ingredients.';
+        document.getElementById('modalFoodPrep').textContent = item.prep_minutes || 20;
+        document.getElementById('modalFoodPrice').textContent = `Rs. ${parseFloat(item.price).toFixed(2)}`;
+        document.getElementById('modalQtyDisplay').textContent = '1';
+
+        const availEl = document.getElementById('modalFoodAvail');
+        const addBtn = document.getElementById('modalAddToCartBtn');
+        if (item.is_available) {
+          availEl.textContent = 'In Stock & Fresh';
+          availEl.style.color = 'var(--success)';
+          addBtn.disabled = false;
+        } else {
+          availEl.textContent = 'Currently Sold Out';
+          availEl.style.color = 'var(--error)';
+          addBtn.disabled = true;
         }
 
-        // Add to cart function
-        async function addToCart(menuId, name, price) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Please log in to add items to your cart.');
-                    window.location.href = '../login.html';
-                    return;
-                }
+        // Fetch Frequently Bought Together (Phase 3)
+        loadPairings(itemId);
 
-                const response = await fetch('/api/orders/add-to-cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ menuId, quantity: 1, price })
-                });
+        openModal('foodDetailModal');
+      } catch (err) {
+        console.error('Modal error:', err);
+      }
+    }
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to add item to cart. Status: ${response.status}. Response: ${errorText}`);
-                }
+    async function loadPairings(menuId) {
+      const section = document.getElementById('modalPairingsSection');
+      const list = document.getElementById('modalPairingsList');
+      try {
+        const res = await fetch(`/api/recommendations/frequently-bought-together/${menuId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const items = data.items || [];
 
-                const data = await response.json();
-                const existingItem = cart.find(item => item.menuId === menuId);
-                
-                if (existingItem) {
-                    existingItem.quantity += 1;
-                } else {
-                    cart.push({ menuId, name, price, quantity: 1 });
-                }
-                
-                updateCartDisplay();
-            } catch (error) {
-                console.error('Error adding to cart:', error);
-                alert(`Failed to add item to cart: ${error.message}`);
-            }
+        if (items.length > 0) {
+          list.innerHTML = items.map(p => `
+            <div style="background: white; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: var(--radius-md); font-size: 0.82rem; display: flex; align-items: center; gap: 6px;">
+              <span>${p.emoji || '🍽️'}</span>
+              <span style="font-weight: 600;">${p.name}</span>
+              <span style="color: var(--primary-dark); font-weight: 700;">+Rs. ${parseFloat(p.price).toFixed(0)}</span>
+              <button onclick="addToCartApi(${p.id}, 1)" style="border: none; background: var(--primary-light); color: var(--accent); padding: 2px 8px; border-radius: var(--radius-full); cursor: pointer; font-size: 0.75rem; font-weight: 700;">+ Add</button>
+            </div>
+          `).join('');
+          section.style.display = 'block';
+        } else {
+          section.style.display = 'none';
         }
+      } catch (e) {
+        section.style.display = 'none';
+      }
+    }
 
-        // Update cart display
-        function updateCartDisplay() {
-            const cartItemsContainer = document.getElementById('cart-items');
-            const cartTotalElement = document.getElementById('cart-total');
-            const checkoutBtn = document.getElementById('checkout-btn');
+    function adjustModalQty(delta) {
+      modalQuantity = Math.max(1, modalQuantity + delta);
+      document.getElementById('modalQtyDisplay').textContent = modalQuantity;
+    }
 
-            cartItemsContainer.innerHTML = '';
-            let total = 0;
+    async function addModalItemToCart() {
+      if (!activeModalItem) return;
+      const success = await addToCartApi(activeModalItem.id, modalQuantity);
+      if (success) {
+        closeModal('foodDetailModal');
+        checkCartFloating();
+      }
+    }
 
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = '<li class="empty-cart">Your cart is empty</li>';
-            } else {
-                cart.forEach(item => {
-                    const li = document.createElement('li');
-                    li.className = 'cart-item';
-                    li.innerHTML = `
-                        <span>${item.name} x${item.quantity}</span>
-                        <span> Rs. ${(item.price * item.quantity).toFixed(2)}</span>
-                    `;
-                    cartItemsContainer.appendChild(li);
-                    total += item.price * item.quantity;
-                });
-            }
-
-            cartTotalElement.textContent = total.toFixed(2);
-            checkoutBtn.disabled = cart.length === 0;
-
-            checkoutBtn.onclick = async () => {
-                try {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('You must be logged in to checkout.');
-                        window.location.href = '../login.html';
-                        return;
-                    }
-                
-                    const response = await fetch('/api/orders/checkout', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                
-                    if (!response.ok) {
-                        const errorMsg = await response.text();
-                        throw new Error(`Checkout failed: ${response.status} - ${errorMsg}`);
-                    }
-                
-                    const result = await response.json();
-                    const orderId = result.orderId || result.id; // Adjust depending on backend response
-                
-                    window.location.href = `billing.html?order_id=${orderId}`;
-                } catch (error) {
-                    console.error('Checkout error:', error);
-                    alert(`Failed to checkout: ${error.message}`);
-                }
-            };
-
-
-
-        }
-
-        // Initialize menu on page load
-        document.addEventListener('DOMContentLoaded', fetchMenuItems);
-    </script>
+    // Set initial category from URL if present
+    document.addEventListener('DOMContentLoaded', () => {
+      if (currentCategory && currentCategory !== 'All') {
+        const pills = document.querySelectorAll('#categoryBar .category-pill');
+        pills.forEach(p => {
+          if (p.textContent.includes(currentCategory)) {
+            pills.forEach(b => b.classList.remove('active'));
+            p.classList.add('active');
+          }
+        });
+      }
+      applyFilters();
+    });
+  </script>
 </body>
 </html>

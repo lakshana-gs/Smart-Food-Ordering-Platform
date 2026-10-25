@@ -1,95 +1,329 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="../css/dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .metric-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform var(--transition-fast);
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .metric-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .admin-table th {
+      background: var(--bg-muted);
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .admin-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-main);
+    }
+    .admin-table tr:hover td {
+      background: #faf8f5;
+    }
+  </style>
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">Administrator Control Panel</p>
+<body style="background: #f8fafc; min-height: 100vh;">
+
+  <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #db2777, #9333ea); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
+          🛡️
+        </div>
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Admin Command Center</h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Real-time database metrics & store management</p>
+        </div>
       </div>
-      <div class="quick-stats">
-        <div class="stat-card pulse">
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="../index.html" class="btn btn-secondary btn-sm" target="_blank">
+          <i class="fas fa-external-link"></i> Customer Storefront
+        </a>
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Subnavigation Bar -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn active"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <!-- Date Range Filter -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--accent); margin: 0;">Overview Metrics</h2>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Time Period:</span>
+        <select id="timeRangeSelect" class="form-control" onchange="loadStats()" style="width: auto; padding: 6px 12px; font-size: 0.88rem;">
+          <option value="all">All Time</option>
+          <option value="today">Today Only</option>
+          <option value="week">Past 7 Days</option>
+          <option value="month">Past 30 Days</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Metrics Cards Grid -->
+    <div class="metric-grid">
+      <!-- Total Revenue (Excluding Cancelled) -->
+      <div class="metric-card" style="border-left: 4px solid #10b981;">
+        <div class="metric-icon-wrap" style="background: #d1fae5; color: #059669;">
+          <i class="fas fa-indian-rupee-sign"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Net Revenue (Confirmed)</div>
+          <div id="statRevenue" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">Rs. 0.00</div>
+          <small id="statRevenueHint" style="font-size: 0.75rem; color: var(--text-muted);">Excludes cancelled orders</small>
+        </div>
+      </div>
+
+      <!-- Total Orders -->
+      <div class="metric-card" style="border-left: 4px solid var(--primary);">
+        <div class="metric-icon-wrap" style="background: #fef3c7; color: #b45309;">
+          <i class="fas fa-box"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Total Orders</div>
+          <div id="statTotalOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <small style="font-size: 0.75rem; color: var(--text-muted);"><span id="statDeliveredCount">0</span> Delivered</small>
+        </div>
+      </div>
+
+      <!-- Active In-Kitchen & In-Transit -->
+      <div class="metric-card" style="border-left: 4px solid #3b82f6;">
+        <div class="metric-icon-wrap" style="background: #dbeafe; color: #2563eb;">
+          <i class="fas fa-truck-fast"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Active / In Transit</div>
+          <div id="statActiveOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <small style="font-size: 0.75rem; color: var(--text-muted);"><span id="statPendingCount">0</span> Pending / Confirmed</small>
+        </div>
+      </div>
+
+      <!-- Total Users -->
+      <div class="metric-card" style="border-left: 4px solid #8b5cf6;">
+        <div class="metric-icon-wrap" style="background: #ede9fe; color: #7c3aed;">
           <i class="fas fa-users"></i>
-          <span class="stat-number shimmer">14</span>
-          <span class="stat-label">Active Users</span>
         </div>
-        <div class="stat-card pulse">
-          <i class="fas fa-utensils"></i>
-          <span class="stat-number shimmer">10</span>
-          <span class="stat-label">Menu Items</span>
-        </div>
-      </div>
-    </header>
-
-    <div class="dashboard-main">
-      <div class="action-grid">
-        <a href="users.html" class="action-card float">
-          <div class="card-icon"><i class="fas fa-users"></i></div>
-          <h3>Manage Users</h3>
-          <p>View and edit all user accounts</p>
-          <div class="action-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-        
-        <a href="add-user.html" class="action-card float">
-          <div class="card-icon"><i class="fas fa-user-plus"></i></div>
-          <h3>Add User</h3>
-          <p>Create new administrator accounts</p>
-          <div class="action-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-        
-        <a href="manage-menu.html" class="action-card float">
-          <div class="card-icon"><i class="fas fa-utensils"></i></div>
-          <h3>Manage Menu</h3>
-          <p>Add or update food items</p>
-          <div class="action-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-        
-        <a href="delivery-status.html" class="action-card float">
-          <div class="card-icon"><i class="fas fa-truck"></i></div>
-          <h3>Delivery Status</h3>
-          <p>Update order tracking status</p>
-          <div class="action-arrow"><i class="fas fa-arrow-right"></i></div>
-        </a>
-      </div>
-
-      <div class="recent-activity slide-in">
-        <h2><i class="fas fa-history"></i> Recent Activity</h2>
-        <div class="activity-list">
-          <div class="activity-item fade-in">
-            <i class="fas fa-user-edit"></i>
-            <span>Updated user profile (User1)</span>
-            <span class="activity-time">2 hours ago</span>
-          </div>
-          <div class="activity-item fade-in" style="animation-delay: 0.1s;">
-            <i class="fas fa-hamburger"></i>
-            <span>Added new menu item (Burger)</span>
-            <span class="activity-time">Yesterday</span>
-          </div>
-          <div class="activity-item fade-in" style="animation-delay: 0.2s;">
-            <i class="fas fa-truck-moving"></i>
-            <span>Updated delivery status (#ORD-701)</span>
-            <span class="activity-time">2 days ago</span>
-          </div>
+        <div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Registered Users</div>
+          <div id="statUsersCount" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <small style="font-size: 0.75rem; color: var(--text-muted);"><span id="statActiveMenuCount">0</span> Dishes on Menu</small>
         </div>
       </div>
     </div>
 
-    <footer class="admin-footer">
-      <button onclick="logout()" class="logout-btn glow">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </footer>
+    <!-- Main Content Split Grid -->
+    <div style="display: grid; grid-template-columns: 1.7fr 1fr; gap: 24px; align-items: flex-start;">
+      <!-- Recent Real Orders Table (No fake activity feed) -->
+      <div class="profile-card" style="margin: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--accent); margin: 0;">
+            <i class="fas fa-clock-rotate-left"></i> Recent Customer Orders
+          </h3>
+          <a href="orders.html" class="btn btn-secondary btn-sm">View All Orders</a>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="recentOrdersTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">
+                  <i class="fas fa-spinner fa-spin"></i> Loading real orders...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Selling Food Dishes -->
+      <div class="profile-card" style="margin: 0;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--accent); margin-bottom: 16px;">
+          <i class="fas fa-fire" style="color: var(--secondary);"></i> Top Selling Dishes
+        </h3>
+
+        <div id="topSellingList">
+          <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin"></i> Loading top dishes...
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
     protect('admin');
+
+    async function loadStats() {
+      const token = getToken();
+      const range = document.getElementById('timeRangeSelect').value;
+
+      try {
+        const res = await fetch(`/api/admin/stats?range=${range}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Failed to load stats');
+        const data = await res.json();
+
+        // Populate metrics
+        document.getElementById('statRevenue').textContent = `Rs. ${data.revenue.totalRevenue}`;
+        document.getElementById('statTotalOrders').textContent = data.counts.totalOrders;
+        document.getElementById('statDeliveredCount').textContent = data.counts.deliveredOrders;
+        document.getElementById('statActiveOrders').textContent = data.counts.inProgressOrders;
+        document.getElementById('statPendingCount').textContent = data.counts.pendingOrders;
+        document.getElementById('statUsersCount').textContent = data.counts.users;
+        document.getElementById('statActiveMenuCount').textContent = data.counts.activeMenuItems;
+
+        // Render Recent Real Orders
+        const tbody = document.getElementById('recentOrdersTableBody');
+        if (!data.recentOrders || data.recentOrders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No orders found.</td></tr>';
+        } else {
+          tbody.innerHTML = data.recentOrders.map(o => {
+            const statusLower = (o.status || 'Pending').toLowerCase().replace(/\s+/g, '-');
+            return `
+              <tr>
+                <td><strong>#${o.id}</strong></td>
+                <td>
+                  <div style="font-weight: 600;">${o.customerName || 'Customer'}</div>
+                  <small style="color: var(--text-muted);">${o.customerEmail || ''}</small>
+                </td>
+                <td>${o.itemCount || 1} item(s)</td>
+                <td>
+                  <span class="status-badge ${statusLower}">
+                    ${o.statusEmoji || '📦'} ${o.status}
+                  </span>
+                </td>
+                <td><strong>Rs. ${o.total}</strong></td>
+                <td>
+                  <a href="orders.html?id=${o.id}" class="btn btn-secondary btn-sm" title="Manage Order">
+                    <i class="fas fa-pencil"></i>
+                  </a>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // Render Top Selling
+        const topList = document.getElementById('topSellingList');
+        if (!data.topSelling || data.topSelling.length === 0) {
+          topList.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No sales data available yet.</p>';
+        } else {
+          topList.innerHTML = data.topSelling.map((item, idx) => `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-light);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 800; color: var(--text-light); width: 20px;">#${idx + 1}</span>
+                <span style="font-size: 1.5rem;">${item.emoji || '🍽️'}</span>
+                <div>
+                  <div style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">${item.name}</div>
+                  <small style="color: var(--text-muted);">${item.category}</small>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <strong style="color: var(--text-main); font-size: 0.95rem;">${item.units_sold} sold</strong>
+                <div style="font-size: 0.8rem; color: var(--primary-dark); font-weight: 700;">Rs. ${item.total_revenue}</div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Stats error:', err);
+        showToast('Error loading admin statistics', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStats);
   </script>
 </body>
 </html>

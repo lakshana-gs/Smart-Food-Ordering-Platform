@@ -1,17 +1,60 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = function(req, res, next) {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).send('Access denied');
+const JWT_SECRET = process.env.JWT_SECRET || 'food_delivery_dev_secret_2026_change_this';
+
+function requireAuth(req, res, next) {
+  const authHeader = req.header('Authorization') || req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Access denied. Authentication token required.' });
+  }
+
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. Token is empty.' });
+  }
 
   try {
-    const tokenWithoutBearer = token.startsWith('Bearer ') ? token.split(' ')[1] : token;
-    console.log('JWT_SECRET:', process.env.JWT_SECRET); // Debug log
-    const verified = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
+    const verified = jwt.verify(token, JWT_SECRET);
     req.user = verified;
     next();
   } catch (err) {
-    console.error('Token verification error:', err.message);
-    res.status(401).json({ error: 'Invalid token', details: err.message });
+    return res.status(401).json({ message: 'Invalid or expired token. Please log in again.' });
   }
-};
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied. Administrator privileges required.' });
+  }
+  next();
+}
+
+function optionalAuth(req, res, next) {
+  const authHeader = req.header('Authorization') || req.headers['authorization'];
+  if (!authHeader) {
+    req.user = null;
+    return next();
+  }
+
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const verified = jwt.verify(token, JWT_SECRET);
+    req.user = verified;
+  } catch (err) {
+    req.user = null;
+  }
+  next();
+}
+
+// For backward compatibility where existing files did `const authMiddleware = require('../middleware/authMiddleware');`
+// we make requireAuth the main callable function and attach properties:
+requireAuth.requireAuth = requireAuth;
+requireAuth.requireAdmin = requireAdmin;
+requireAuth.optionalAuth = optionalAuth;
+
+module.exports = requireAuth;

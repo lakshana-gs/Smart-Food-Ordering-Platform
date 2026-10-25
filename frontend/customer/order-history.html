@@ -1,313 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chef Deliver and Track - Order History</title>
-    <link rel="stylesheet" href="../css/Pages.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Enhanced styles for all four status categories */
-        .order-card {
-            background: white;
-            border-radius: 8px;
-            padding: var(--space-md);
-            margin-bottom: var(--space-sm);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-        }
-        
-        /* Status-specific border colors */
-        .order-card[data-status="delivered"] {
-            border-left: 4px solid var(--success);
-        }
-        .order-card[data-status="pending"] {
-            border-left: 4px solid var(--primary);
-        }
-        .order-card[data-status="confirmed"],
-        .order-card[data-status="Confirmed"] {
-            border-left: 4px solid var(--primary-dark);
-        }
-        .order-card[data-status="preparing"] {
-            border-left: 4px solid #ff9800;
-        }
-        .order-card[data-status="out for delivery"],
-        .order-card[data-status="out-for-delivery"] {
-            border-left: 4px solid #42a5f5;
-        }
-        .order-card[data-status="cancelled"] {
-            border-left: 4px solid var(--error);
-        }
-        
-        .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-        }
-        
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-xs);
-        }
-        
-        .order-status {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-xs);
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        /* Status-specific styling */
-        .status-delivered {
-            background: var(--success);
-            color: white;
-        }
-        .status-pending {
-            background: var(--primary-light);
-            color: var(--text);
-        }
-        .status-confirmed {
-            background: #ffe082;
-            color: #5d4037;
-        }
-        .status-preparing {
-            background: #ffe0b2;
-            color: #e65100;
-        }
-        .status-out-for-delivery {
-            background: #42a5f5;
-            color: white;
-        }
-        .status-cancelled {
-            background: var(--error-light);
-            color: var(--error);
-        }
-        
-        .order-date {
-            color: var(--accent-light);
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
-        
-        .order-total {
-            font-weight: 600;
-            color: var(--accent);
-            margin-top: 4px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: var(--space-md);
-            margin-top: var(--space-xl);
-            padding-top: var(--space-md);
-        }
-        
-        .filter-buttons {
-            display: flex;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-lg);
-            flex-wrap: wrap;
-        }
-        
-        .stat-cards {
-            display: flex;
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            flex: 1;
-            min-width: 120px;
-            background: white;
-            border-radius: 8px;
-            padding: var(--space-md);
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-top: 3px solid var(--primary);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Order History - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .order-history-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+    .order-history-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .status-badge.pending { background: #fef3c7; color: #b45309; }
+    .status-badge.confirmed { background: #ecfdf5; color: #047857; }
+    .status-badge.preparing { background: #ffedd5; color: #c2410c; }
+    .status-badge.out-for-delivery { background: #e0f2fe; color: #0369a1; }
+    .status-badge.delivered { background: #dcfce7; color: #15803d; }
+    .status-badge.cancelled { background: #fee2e2; color: #b91c1c; }
+    
+    .filter-btn-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .filter-tab {
+      border: 1px solid var(--border-light);
+      background: white;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-metric-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--bg-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="admin-header">
-            <div class="header-content">
-                <h1><i class="fas fa-utensils"></i> Chef Deliver and Track</h1>
-                <p class="admin-subtitle">Your Complete Order History</p>
-            </div>
-        </header>
 
-        <main class="dashboard-main">
-            <div class="form-card">
-                <div class="flex justify-between items-center mb-md">
-                    <h2><i class="fas fa-history"></i> Your Order History</h2>
-                    <div class="search-container">
-                        <input type="search" id="orderSearch" placeholder="Search orders...">
-                    </div>
-                </div>
-                
-                <div class="filter-buttons">
-                    <button class="btn btn-secondary active" data-filter="all">All Orders</button>
-                    <button class="btn btn-secondary" data-filter="pending">Pending</button>
-                    <button class="btn btn-secondary" data-filter="confirmed">Confirmed</button>
-                    <button class="btn btn-secondary" data-filter="preparing">Preparing</button>
-                    <button class="btn btn-secondary" data-filter="out for delivery">Out for Delivery</button>
-                    <button class="btn btn-secondary" data-filter="delivered">Delivered</button>
-                    <button class="btn btn-secondary" data-filter="cancelled">Cancelled</button>
-                </div>
-                
-                <div class="stat-cards">
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalOrders">0</div>
-                        <div class="stat-label">Total Orders</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="completedOrders">0</div>
-                        <div class="stat-label">Delivered</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="remainingOrders">0</div>
-                        <div class="stat-label">Remaining</div>
-                    </div>
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
 
-                </div>
-                
-                <div id="orderHistory" class="starling-list"></div>
-                
-                <div class="action-buttons">
-                    <a href="menu.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Menu</a>
-                    <a href="#" class="btn logout-btn" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
-            </div>
-        </main>
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <!-- Page Title -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+      <div>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">My Order History</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Track, view receipts, reorder meals, and monitor live status.</p>
+      </div>
+      <div style="width: 260px;">
+        <input type="text" id="orderSearchInput" class="form-control" placeholder="Search by order # or dish..." oninput="handleOrderSearch()">
+      </div>
     </div>
 
-    <script src="../main.js"></script>
-    <script>
-        protect('user');
+    <!-- Summary Metrics -->
+    <div class="stats-row">
+      <div class="stat-metric-card">
+        <div class="stat-metric-icon" style="background: var(--primary-light); color: var(--accent);">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <div>
+          <div id="statTotalOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Total Orders</div>
+        </div>
+      </div>
 
-        async function loadOrderHistory() {
-            const resultDiv = document.getElementById('orderHistory');
-            resultDiv.innerHTML = '<div class="shimmer" style="height: 100px; border-radius: 8px;"></div>';
-            
-            try {
-                const res = await fetch('/api/orders/history', {
-                    headers: { 
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const orders = await res.json();
+      <div class="stat-metric-card">
+        <div class="stat-metric-icon" style="background: var(--veg-bg); color: var(--veg-color);">
+          <i class="fas fa-circle-check"></i>
+        </div>
+        <div>
+          <div id="statDeliveredOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">Delivered</div>
+        </div>
+      </div>
 
-                if (res.ok) {
-                    // Calculate stats
-                    const totalOrders = orders.length;
-                    const completedOrders = orders.filter(o => (o.status || '').toLowerCase() === 'delivered').length;
-                    const remainingOrders = orders.filter(o => {
-                        const s = (o.status || '').toLowerCase();
-                        return s !== 'delivered' && s !== 'cancelled';
-                    }).length;
+      <div class="stat-metric-card">
+        <div class="stat-metric-icon" style="background: #e0f2fe; color: #0284c7;">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div>
+          <div id="statActiveOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">In Progress</div>
+        </div>
+      </div>
+    </div>
 
-                    // Update stats
-                    document.getElementById('totalOrders').textContent = totalOrders;
-                    document.getElementById('completedOrders').textContent = completedOrders;
-                    document.getElementById('remainingOrders').textContent = remainingOrders;
-   
-                    // Render orders
-                    resultDiv.innerHTML = orders.map(order => {
-                        const rawStatus = order.status || 'Pending';
-                        const statusLower = rawStatus.toLowerCase();
-                        const statusClass = statusLower.replace(/\s+/g, '-');
-                        return `
-                        <div class="order-card fade-in" data-status="${statusLower}">
-                            <div class="order-header">
-                                <h3>Order #${order.id}</h3>
-                                <span class="order-status status-${statusClass}">
-                                    <i class="fas ${getStatusIcon(rawStatus)}"></i> ${rawStatus} ${order.statusEmoji || ''}
-                                </span>
-                            </div>
-                            <div class="order-date">
-                                ${new Date(order.updatedAt).toLocaleString()}
-                            </div>
-                            ${order.totalAmount ? `<div class="order-total">Total: $${order.totalAmount.toFixed(2)}</div>` : ''}
-                        </div>
-                        `;
-                    }).join('');
-                    
-                    // Setup filter buttons
-                    setupFilters();
-                    // Setup search
-                    setupSearch();
-                } else if (res.status === 404) {
-                    document.getElementById('totalOrders').textContent = '0';
-                    document.getElementById('completedOrders').textContent = '0';
-                    document.getElementById('remainingOrders').textContent = '0';
-                    resultDiv.innerHTML = `<div class="order-card">${orders.message || 'No orders found'}</div>`;
-                } else {
-                    resultDiv.innerHTML = `<div class="order-card error">${orders.message || 'Failed to load orders'}</div>`;
-                }
-            } catch (error) {
-                console.error('Order history error:', error);
-                resultDiv.innerHTML = `<div class="order-card error">Failed to load orders: ${error.message}</div>`;
-            }
+    <!-- Status Filters -->
+    <div class="filter-btn-bar">
+      <button class="filter-tab active" data-filter="all" onclick="filterStatus('all', this)">All Orders</button>
+      <button class="filter-tab" data-filter="active" onclick="filterStatus('active', this)">Active Orders</button>
+      <button class="filter-tab" data-filter="delivered" onclick="filterStatus('delivered', this)">Delivered</button>
+      <button class="filter-tab" data-filter="cancelled" onclick="filterStatus('cancelled', this)">Cancelled</button>
+    </div>
+
+    <!-- Loading View -->
+    <div id="historyLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 12px;">Loading your order history...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="historyEmpty" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📦</div>
+      <h2 class="empty-state-title">No Orders Found</h2>
+      <p class="empty-state-desc">You haven't placed any orders matching this filter yet.</p>
+      <a href="menu.html" class="btn btn-primary">
+        <i class="fas fa-utensils"></i> Order Delicious Food Now
+      </a>
+    </div>
+
+    <!-- Orders List Container -->
+    <div id="ordersListContainer"></div>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script src="../main.js"></script>
+  <script>
+    renderNavbar('history');
+    renderFooter();
+
+    let allOrdersData = [];
+    let currentFilter = 'all';
+
+    async function loadOrderHistory() {
+      const token = getToken();
+      if (!token) {
+        window.location.href = '../login.html';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/orders/history', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        document.getElementById('historyLoading').style.display = 'none';
+
+        if (!res.ok) {
+          throw new Error('Failed to load orders');
         }
 
-        function getStatusIcon(status) {
-            const statusIcons = {
-                'delivered': 'fa-check-circle',
-                'pending': 'fa-hourglass-half',
-                'confirmed': 'fa-clipboard-check',
-                'preparing': 'fa-utensils',
-                'out for delivery': 'fa-truck-fast',
-                'cancelled': 'fa-times-circle'
-            };
-            const key = (status || '').toLowerCase().trim();
-            return statusIcons[key] || 'fa-question-circle';
-        }
+        const orders = await res.json();
+        allOrdersData = orders;
 
-        function setupFilters() {
-            const filterButtons = document.querySelectorAll('[data-filter]');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Update active button
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    
-                    // Filter orders
-                    const filter = button.dataset.filter.toLowerCase();
-                    const orders = document.querySelectorAll('#orderHistory .order-card');
-                    
-                    orders.forEach(order => {
-                        const orderStatus = (order.dataset.status || '').toLowerCase();
-                        if (filter === 'all' || orderStatus === filter || orderStatus.replace(/\s+/g, '-') === filter) {
-                            order.style.display = 'block';
-                        } else {
-                            order.style.display = 'none';
-                        }
-                    });
-                });
-            });
-        }
+        // Compute metrics
+        const total = orders.length;
+        const delivered = orders.filter(o => (o.status || '').toLowerCase() === 'delivered').length;
+        const active = orders.filter(o => !['delivered', 'cancelled'].includes((o.status || '').toLowerCase())).length;
 
-        function setupSearch() {
-            const searchInput = document.getElementById('orderSearch');
-            searchInput.addEventListener('input', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                const orders = document.querySelectorAll('#orderHistory .order-card');
-                
-                orders.forEach(order => {
-                    const text = order.textContent.toLowerCase();
-                    order.style.display = text.includes(searchTerm) ? 'block' : 'none';
-                });
-            });
-        }
+        document.getElementById('statTotalOrders').textContent = total;
+        document.getElementById('statDeliveredOrders').textContent = delivered;
+        document.getElementById('statActiveOrders').textContent = active;
 
-        document.addEventListener('DOMContentLoaded', loadOrderHistory);
-    </script>
+        renderOrders();
+      } catch (err) {
+        console.error('History load error:', err);
+        document.getElementById('historyLoading').innerHTML = `
+          <div style="color: var(--error);">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+            <p style="margin-top: 10px;">Failed to load order history. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    function filterStatus(status, btn) {
+      currentFilter = status;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderOrders();
+    }
+
+    function handleOrderSearch() {
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('ordersListContainer');
+      const emptyView = document.getElementById('historyEmpty');
+      const searchTerm = (document.getElementById('orderSearchInput').value || '').toLowerCase().trim();
+
+      let filtered = allOrdersData.filter(o => {
+        const s = (o.status || '').toLowerCase();
+        if (currentFilter === 'active') {
+          return !['delivered', 'cancelled'].includes(s);
+        } else if (currentFilter === 'delivered') {
+          return s === 'delivered';
+        } else if (currentFilter === 'cancelled') {
+          return s === 'cancelled';
+        }
+        return true;
+      });
+
+      if (searchTerm) {
+        filtered = filtered.filter(o => {
+          return String(o.id).includes(searchTerm) ||
+                 (o.itemsSummary && o.itemsSummary.toLowerCase().includes(searchTerm)) ||
+                 (o.status && o.status.toLowerCase().includes(searchTerm));
+        });
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyView.style.display = 'block';
+        return;
+      }
+
+      emptyView.style.display = 'none';
+      container.innerHTML = filtered.map(order => {
+        const statusLower = (order.status || 'Pending').toLowerCase().replace(/\s+/g, '-');
+        const isCancellable = ['pending', 'confirmed'].includes((order.status || '').toLowerCase());
+        const totalAmount = parseFloat(order.totalAmount || 0).toFixed(2);
+        const orderDate = new Date(order.created_at).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        return `
+          <div class="order-history-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--accent); margin: 0;">Order #${order.id}</h3>
+                  <span class="status-badge ${statusLower}">
+                    ${order.statusEmoji || '📦'} ${order.status}
+                  </span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+                  Placed on ${orderDate} • ${order.payment_method || 'COD'}
+                </div>
+              </div>
+
+              <div style="text-align: right;">
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">Rs. ${totalAmount}</div>
+                <small style="color: var(--text-muted);">${order.itemCount || 1} item(s)</small>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-muted); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-main); margin-bottom: 18px;">
+              <strong>Items:</strong> ${order.itemsSummary || 'Gourmet meal items'}
+              ${order.delivery_address ? `<div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;"><i class="fas fa-location-dot"></i> Delivery: ${order.delivery_address}</div>` : ''}
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+              <a href="track-order.html?order_id=${order.id}" class="btn btn-primary btn-sm">
+                <i class="fas fa-truck-fast"></i> Track Status
+              </a>
+
+              <a href="billing.html?order_id=${order.id}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-file-invoice"></i> Invoice
+              </a>
+
+              <button onclick="handleReorder(${order.id})" class="btn btn-secondary btn-sm" title="Reorder these dishes">
+                <i class="fas fa-rotate-right"></i> Reorder
+              </button>
+
+              ${isCancellable ? `
+                <button onclick="handleCancelOrder(${order.id})" class="btn btn-outline-danger btn-sm" title="Cancel this order">
+                  <i class="fas fa-times-circle"></i> Cancel Order
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleReorder(orderId) {
+      const token = getToken();
+      try {
+        const res = await fetch(`/api/orders/reorder/${orderId}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message, 'success');
+          updateCartCount();
+          setTimeout(() => {
+            window.location.href = 'cart.html';
+          }, 800);
+        } else {
+          showToast(data.message || 'Could not reorder', 'error');
+        }
+      } catch (e) {
+        showToast('Error reordering items', 'error');
+      }
+    }
+
+    async function handleCancelOrder(orderId) {
+      if (!confirm(`Are you sure you want to cancel Order #${orderId}?`)) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`/api/orders/cancel/${orderId}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message, 'info');
+          loadOrderHistory();
+        } else {
+          showToast(data.message || 'Cannot cancel order', 'error');
+        }
+      } catch (e) {
+        showToast('Error cancelling order', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrderHistory);
+  </script>
 </body>
 </html>

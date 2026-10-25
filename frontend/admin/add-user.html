@@ -2,89 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Add User - Admin</title>
-  <link rel="stylesheet" href="../css/Pages.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New User - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">Add New User</p>
-      </div>
-    </header>
+<body style="background: #f8fafc; min-height: 100vh;">
 
-    <div class="dashboard-main">
-      <div class="form-card slide-in">
-        <form id="addUserForm" class="starling-form">
-          <div class="form-group">
-            <label for="username"><i class="fas fa-user"></i> Username</label>
-            <input type="text" id="username" placeholder="Enter username" required>
-          </div>
-          <div class="form-group">
-            <label for="email"><i class="fas fa-envelope"></i> Email</label>
-            <input type="email" id="email" placeholder="Enter email" required>
-          </div>
-          <div class="form-group">
-            <label for="password"><i class="fas fa-lock"></i> Password</label>
-            <input type="password" id="password" placeholder="Enter password" required>
-          </div>
-          <div class="form-group">
-            <label for="role"><i class="fas fa-user-tag"></i> Role</label>
-            <select id="role" required>
-              <option value="">Select Role</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <button type="submit" class="glow">
-            <i class="fas fa-user-plus"></i> Add User
-          </button>
-        </form>
-        <a href="users.html" class="back-link float"><i class="fas fa-arrow-left"></i> Back to Users</a>
-      </div>
+  <div class="container" style="max-width: 600px; padding-top: 40px; padding-bottom: 60px;">
+    <!-- Breadcrumb / Back Link -->
+    <div style="margin-bottom: 20px;">
+      <a href="users.html" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Back to User Accounts
+      </a>
     </div>
 
-    <footer class="admin-footer">
-      <!-- Footer content if needed -->
-    </footer>
+    <div class="card" style="padding: 32px;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0;">Add New Account</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Create a customer or administrative staff user</p>
+        </div>
+      </div>
+
+      <form id="addUserForm" onsubmit="handleAddUser(event)">
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="username">Full Name / Username *</label>
+          <div style="position: relative;">
+            <i class="fas fa-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" id="username" class="form-input" style="padding-left: 38px;" placeholder="e.g. John Doe" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="email">Email Address *</label>
+          <div style="position: relative;">
+            <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="email" id="email" class="form-input" style="padding-left: 38px;" placeholder="name@example.com" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="password">Initial Password * (min 6 characters)</label>
+          <div style="position: relative;">
+            <i class="fas fa-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="password" id="password" class="form-input" style="padding-left: 38px; padding-right: 40px;" placeholder="••••••••" minlength="6" required>
+            <button type="button" onclick="togglePassVisibility('password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label class="form-label" for="role">Account Role *</label>
+          <select id="role" class="form-input" required>
+            <option value="user">Customer (Standard User)</option>
+            <option value="admin">Admin (Full Dashboard & Staff Access)</option>
+          </select>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+            Admins have full access to view orders, revenue, menu settings, and user accounts.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <a href="users.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <i class="fas fa-check"></i> Create Account
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
-    // Your existing JavaScript remains unchanged
-    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+    protect('admin');
+
+    function togglePassVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    }
+
+    async function handleAddUser(e) {
       e.preventDefault();
-      const token = localStorage.getItem('token');
 
       const user = {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
+        username: document.getElementById('username').value.trim(),
+        email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value,
         role: document.getElementById('role').value
       };
 
-      console.log('Sending token:', token);
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(user)
-      });
-      const data = await res.text();
-      console.log('Server response:', data);
-      if (res.ok) {
-        alert('User added successfully');
-        window.location.href = 'users.html';
-      } else {
-        alert(data || 'Failed to add user');
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(user)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to create user');
+
+        showToast(`User account "${user.username}" created successfully!`, 'success');
+        setTimeout(() => {
+          window.location.href = 'users.html';
+        }, 1200);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Create Account';
       }
-    });
-    
-    protect('admin');
+    }
   </script>
 </body>
 </html>

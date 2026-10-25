@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & Customer Support - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .help-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 36px;
+      align-items: flex-start;
+    }
+    .faq-item {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .faq-question {
+      padding: 16px 20px;
+      font-weight: 700;
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-answer {
+      padding: 0 20px 16px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      display: none;
+      border-top: 1px solid #f5f3ef;
+      padding-top: 12px;
+    }
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+    .faq-item.open .faq-icon {
+      transform: rotate(180deg);
+    }
+    .contact-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+    @media (max-width: 900px) {
+      .help-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
+
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <!-- Title -->
+    <div style="margin-bottom: 32px;">
+      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">Help & Customer Support</h1>
+      <p style="color: var(--text-muted); font-size: 1rem;">Find answers to common questions or reach out to our team.</p>
+    </div>
+
+    <div class="help-grid">
+      <!-- FAQs Column -->
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-circle-question" style="color: var(--primary);"></i> Frequently Asked Questions
+        </h2>
+
+        <div id="faqsContainer">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin"></i> Loading FAQs...
+          </div>
+        </div>
+
+        <div style="background: var(--bg-muted); border-radius: var(--radius-md); padding: 20px; margin-top: 24px; display: flex; align-items: center; gap: 16px;">
+          <div style="font-size: 2.2rem;">📞</div>
+          <div>
+            <h4 style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 2px;">Need Immediate Order Assistance?</h4>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Call our kitchen helpline at <strong>1800-CHEF-DEL</strong> (Mon-Sun, 9 AM - 11 PM).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Submission Form Column (Backed by DB endpoint) -->
+      <div>
+        <div class="contact-card">
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--accent); margin-bottom: 6px;">Send Us a Message</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">We usually respond to inquiries within 30 minutes.</p>
+
+          <form id="contactForm" onsubmit="handleContactSubmit(event)">
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="contactName" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">Your Name *</label>
+              <input type="text" id="contactName" class="form-control" required placeholder="Full Name">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="contactEmail" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">Email Address *</label>
+              <input type="email" id="contactEmail" class="form-control" required placeholder="name@example.com">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="contactSubject" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">Subject</label>
+              <input type="text" id="contactSubject" class="form-control" placeholder="e.g. Question about my order #4">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="contactMessage" style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--accent); margin-bottom: 4px;">Message *</label>
+              <textarea id="contactMessage" class="form-control" rows="4" required placeholder="How can we help you today?"></textarea>
+            </div>
+
+            <button type="submit" id="contactSubmitBtn" class="btn btn-primary btn-block">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script src="../main.js"></script>
+  <script>
+    renderNavbar('help');
+    renderFooter();
+
+    async function loadFaqs() {
+      const container = document.getElementById('faqsContainer');
+      try {
+        const res = await fetch('/api/support/faqs');
+        const faqs = await res.json();
+
+        container.innerHTML = faqs.map((faq, idx) => `
+          <div class="faq-item ${idx === 0 ? 'open' : ''}" onclick="toggleFaq(this)">
+            <div class="faq-question">
+              <span>${faq.question}</span>
+              <i class="fas fa-chevron-down faq-icon" style="color: var(--text-light); transition: transform 0.2s;"></i>
+            </div>
+            <div class="faq-answer">
+              ${faq.answer}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<div style="color: var(--error);">Error loading FAQs.</div>';
+      }
+    }
+
+    function toggleFaq(el) {
+      el.classList.toggle('open');
+    }
+
+    async function handleContactSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const subject = document.getElementById('contactSubject').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+      const btn = document.getElementById('contactSubmitBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      const token = getToken();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      try {
+        const res = await fetch('/api/support/contact', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ name, email, subject, message })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message, 'success');
+          document.getElementById('contactForm').reset();
+        } else {
+          showToast(data.message || 'Failed to submit inquiry', 'error');
+        }
+      } catch (err) {
+        showToast('Network error while sending message', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFaqs();
+      const user = getUser();
+      if (user) {
+        document.getElementById('contactName').value = user.username || '';
+        document.getElementById('contactEmail').value = user.email || '';
+      }
+    });
+  </script>
+</body>
+</html>

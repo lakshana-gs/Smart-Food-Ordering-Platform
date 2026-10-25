@@ -2,174 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Update Delivery Status</title>
-  <link rel="stylesheet" href="../css/Pages.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Status Update - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+  </style>
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">Update Delivery Status</p>
-      </div>
-    </header>
+<body style="background: #f8fafc; min-height: 100vh;">
 
-    <div class="dashboard-main">
-      <div class="form-card slide-in">
-        <form id="updateStatusForm" class="starling-form">
-          <div class="form-group">
-            <label for="order_id"><i class="fas fa-receipt"></i> Order ID</label>
-            <input type="text" id="order_id" placeholder="Enter order ID" required>
-            <div id="orderInfo" style="margin-top: 6px; font-size: 0.9rem; color: var(--accent); display: none;"></div>
-          </div>
-          <div class="form-group">
-            <label for="status"><i class="fas fa-truck"></i> Status</label>
-            <select id="status" required>
-              <option value="">Select Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Preparing">Preparing</option>
-              <option value="Out for Delivery">Out for Delivery</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="emoji"><i class="fas fa-smile"></i> Status Emoji</label>
-            <input type="text" id="emoji" placeholder="e.g. 🍔, 🚚, ✅" required>
-          </div>
-          <button type="submit" class="glow">
-            <i class="fas fa-sync-alt"></i> Update Status
-          </button>
-        </form>
-        <a href="dashboard.html" class="back-link float"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-      </div>
+  <div class="container" style="max-width: 650px; padding-top: 30px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <a href="orders.html" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> View Full Orders Table
+      </a>
+      <a href="dashboard.html" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-chart-line"></i> Dashboard
+      </a>
     </div>
 
-    <footer class="admin-footer">
-      <!-- Footer content if needed -->
-    </footer>
+    <!-- Admin Subnavigation Bar -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn active"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <div class="card" style="padding: 32px;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f97316, #ea580c); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: var(--shadow-sm);">
+          🚚
+        </div>
+        <div>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--accent); margin: 0;">Quick Delivery Status Update</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Lookup an order by ID and advance its delivery status</p>
+        </div>
+      </div>
+
+      <form id="updateStatusForm" onsubmit="handleStatusSubmit(event)">
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="order_id">Order Reference # *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" id="order_id" class="form-input" placeholder="e.g. 1" min="1" required style="font-weight: 700; font-family: monospace;">
+            <button type="button" onclick="fetchOrderDetails()" class="btn btn-secondary" style="white-space: nowrap;">
+              <i class="fas fa-search"></i> Check Order
+            </button>
+          </div>
+        </div>
+
+        <!-- Live order card preview -->
+        <div id="orderPreviewCard" style="display: none; background: #fafaf9; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 700; color: var(--accent);" id="previewCustomer">Customer: ...</span>
+            <span id="previewCurrentStatus" class="badge">Status</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);" id="previewItems">Items: ...</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="previewAddress">Address: ...</div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="status">New Order Status *</label>
+          <select id="status" class="form-input" required onchange="onStatusSelect()">
+            <option value="">-- Choose New Status --</option>
+            <option value="Pending">⏳ Pending (Order received, awaiting kitchen confirm)</option>
+            <option value="Confirmed">✅ Confirmed (Kitchen accepted the order)</option>
+            <option value="Preparing">🍳 Preparing (Dishes being prepared)</option>
+            <option value="Out for Delivery">🚚 Out for Delivery (Rider en-route with order)</option>
+            <option value="Delivered">🎉 Delivered (Food safely delivered to customer)</option>
+            <option value="Cancelled">❌ Cancelled (Order rejected/cancelled)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label class="form-label" for="emoji">Status Emoji Icon *</label>
+          <input type="text" id="emoji" class="form-input" placeholder="e.g. 🚚" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <a href="orders.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <i class="fas fa-sync-alt"></i> Apply Status Update
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('updateStatusForm');
-      const orderIdInput = document.getElementById('order_id');
-      const statusSelect = document.getElementById('status');
-      const emojiInput = document.getElementById('emoji');
-      const orderInfo = document.getElementById('orderInfo');
-
-      const defaultEmojis = {
-        'Pending': '⏳',
-        'Confirmed': '✅',
-        'Preparing': '🍳',
-        'Out for Delivery': '🚚',
-        'Delivered': '🎉',
-        'Cancelled': '❌'
-      };
-
-      // Auto-populate default emoji when status is selected
-      statusSelect.addEventListener('change', () => {
-        const selected = statusSelect.value;
-        if (defaultEmojis[selected]) {
-          emojiInput.value = defaultEmojis[selected];
-        }
-      });
-
-      // Show current status when order ID is entered
-      async function fetchCurrentStatus() {
-        const orderId = orderIdInput.value.trim();
-        if (!orderId) {
-          if (orderInfo) orderInfo.style.display = 'none';
-          return;
-        }
-        try {
-          const token = localStorage.getItem('token');
-          if (!token) return;
-
-          const res = await fetch(`/api/orders/track/${orderId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (orderInfo) {
-              orderInfo.style.display = 'block';
-              orderInfo.innerHTML = `<span><strong>Current Status:</strong> ${data.status} ${data.statusEmoji || ''}</span>`;
-            }
-          } else {
-            if (orderInfo) {
-              orderInfo.style.display = 'block';
-              orderInfo.innerHTML = `<span style="color: var(--error);">Order #${orderId} not found</span>`;
-            }
-          }
-        } catch (err) {
-          // Ignore background fetch error
-        }
-      }
-
-      orderIdInput.addEventListener('change', fetchCurrentStatus);
-      orderIdInput.addEventListener('blur', fetchCurrentStatus);
-
-      if (form) {
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const order_id = document.getElementById('order_id').value.trim();
-          const status = document.getElementById('status').value;
-          const statusEmoji = document.getElementById('emoji').value.trim();
-        
-          if (!order_id || !status || !statusEmoji) {
-            alert('Please fill in all fields');
-            return;
-          }
-        
-          try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-              throw new Error('No authentication token found. Please log in.');
-            }
-
-            const response = await fetch(`/api/orders/update/${order_id}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-              body: JSON.stringify({ status, statusEmoji }),
-            });
-          
-            if (!response.ok) {
-              let errorMsg = `Request failed with status ${response.status}`;
-              try {
-                const errData = await response.json();
-                if (errData && errData.message) {
-                  errorMsg = errData.message;
-                }
-              } catch (_) {
-                const text = await response.text();
-                if (text) errorMsg = text;
-              }
-              throw new Error(errorMsg);
-            }
-          
-            const data = await response.json();
-            alert(`Status updated successfully: ${data.status || status} ${data.statusEmoji || statusEmoji}`);
-            window.location.href = 'dashboard.html';
-          } catch (error) {
-            console.error('Error updating status:', error);
-            alert(`Failed to update status: ${error.message}`);
-          }
-        });
-      } else {
-        console.error('Form with ID "updateStatusForm" not found');
-      }
-    });
-    
     protect('admin');
+
+    const defaultEmojis = {
+      'Pending': '⏳',
+      'Confirmed': '✅',
+      'Preparing': '🍳',
+      'Out for Delivery': '🚚',
+      'Delivered': '🎉',
+      'Cancelled': '❌'
+    };
+
+    function onStatusSelect() {
+      const selected = document.getElementById('status').value;
+      if (defaultEmojis[selected]) {
+        document.getElementById('emoji').value = defaultEmojis[selected];
+      }
+    }
+
+    async function fetchOrderDetails() {
+      const id = document.getElementById('order_id').value.trim();
+      const preview = document.getElementById('orderPreviewCard');
+
+      if (!id) {
+        showToast('Please enter an order ID to lookup.', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/orders/track/${id}`, {
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) throw new Error('Order #' + id + ' not found');
+        const order = await res.json();
+
+        preview.style.display = 'block';
+        document.getElementById('previewCustomer').textContent = `Order #${order.order_id} - ${order.customer_name || 'Customer'}`;
+        document.getElementById('previewCurrentStatus').textContent = `${order.status} ${order.statusEmoji || ''}`;
+        document.getElementById('previewCurrentStatus').className = `badge status-${order.status.toLowerCase().replace(/\\s+/g, '')}`;
+
+        const itemsStr = (order.items || []).map(i => `${i.quantity}x ${i.name}`).join(', ') || 'No item details';
+        document.getElementById('previewItems').textContent = `Dishes: ${itemsStr}`;
+        document.getElementById('previewAddress').textContent = `Address: ${order.delivery_address || 'Standard Delivery'}`;
+
+        // Select the next reasonable status
+        const validNext = {
+          'Pending': 'Confirmed',
+          'Confirmed': 'Preparing',
+          'Preparing': 'Out for Delivery',
+          'Out for Delivery': 'Delivered'
+        };
+
+        if (validNext[order.status]) {
+          document.getElementById('status').value = validNext[order.status];
+          onStatusSelect();
+        }
+      } catch (err) {
+        preview.style.display = 'none';
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function handleStatusSubmit(e) {
+      e.preventDefault();
+
+      const orderId = document.getElementById('order_id').value.trim();
+      const status = document.getElementById('status').value;
+      const statusEmoji = document.getElementById('emoji').value.trim();
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+      try {
+        const res = await fetch(`/api/orders/update/${orderId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ status, statusEmoji })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update order status');
+
+        showToast(`Order #${orderId} updated to ${status} ${statusEmoji}`, 'success');
+        setTimeout(() => {
+          window.location.href = 'orders.html';
+        }, 1200);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Apply Status Update';
+      }
+    }
+
+    // Auto-fetch if order ID in URL query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const qId = urlParams.get('id');
+    if (qId) {
+      document.getElementById('order_id').value = qId;
+      fetchOrderDetails();
+    }
   </script>
 </body>
 </html>

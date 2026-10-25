@@ -2,94 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Edit User</title>
-  <link rel="stylesheet" href="../css/Pages.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit User Account - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">Edit User</p>
-      </div>
-    </header>
+<body style="background: #f8fafc; min-height: 100vh;">
 
-    <div class="dashboard-main">
-      <div class="form-card slide-in">
-        <form id="editUserForm" class="starling-form">
-          <div class="form-group">
-            <label for="username"><i class="fas fa-user"></i> Username</label>
-            <input type="text" id="username" placeholder="Enter username" required>
-          </div>
-          <div class="form-group">
-            <label for="email"><i class="fas fa-envelope"></i> Email</label>
-            <input type="email" id="email" placeholder="Enter email" required>
-          </div>
-          <div class="form-group">
-            <label for="role"><i class="fas fa-user-tag"></i> Role</label>
-            <select id="role" required>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <button type="submit" class="glow">
-            <i class="fas fa-save"></i> Update User
-          </button>
-        </form>
-        <a href="users.html" class="back-link float"><i class="fas fa-arrow-left"></i> Back to Users</a>
-      </div>
+  <div class="container" style="max-width: 600px; padding-top: 40px; padding-bottom: 60px;">
+    <!-- Breadcrumb / Back Link -->
+    <div style="margin-bottom: 20px;">
+      <a href="users.html" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Back to User Accounts
+      </a>
     </div>
 
-    <footer class="admin-footer">
-      <!-- Footer content if needed -->
-    </footer>
+    <div class="card" style="padding: 32px;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #6366f1, #4338ca); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+          <i class="fas fa-user-edit"></i>
+        </div>
+        <div>
+          <h2 id="pageTitle" style="font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0;">Edit Account</h2>
+          <p id="pageSubtitle" style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Loading account details...</p>
+        </div>
+      </div>
+
+      <form id="editUserForm" onsubmit="handleEditUser(event)">
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="username">Username / Full Name *</label>
+          <div style="position: relative;">
+            <i class="fas fa-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" id="username" class="form-input" style="padding-left: 38px;" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="email">Email Address *</label>
+          <div style="position: relative;">
+            <i class="fas fa-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="email" id="email" class="form-input" style="padding-left: 38px;" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label class="form-label" for="role">Account Role *</label>
+          <select id="role" class="form-input" required>
+            <option value="user">Customer (Standard User)</option>
+            <option value="admin">Admin (Full Dashboard & Staff Access)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label class="form-label" for="is_active">Account Status *</label>
+          <select id="is_active" class="form-input" required>
+            <option value="1">Active (Permitted to log in and place orders)</option>
+            <option value="0">Deactivated (Suspended from logging in)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <a href="users.html" class="btn btn-secondary">Cancel</a>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
-    // Your existing JavaScript remains unchanged
-    const urlParams = new URLSearchParams(window.location.search);
-    const user_id = urlParams.get('id');
-    const token = localStorage.getItem('token');
+    protect('admin');
 
-    async function loadUser() {
-      const res = await fetch(`/api/users/${user_id}`, {
-        headers: { Authorization: token }
-      });
-      const user = await res.json();
-      document.getElementById('username').value = user.username;
-      document.getElementById('email').value = user.email;
-      document.getElementById('role').value = user.role;
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+
+    if (!userId) {
+      alert('No user ID specified.');
+      window.location.href = 'users.html';
     }
 
-    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+    async function loadUser() {
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) throw new Error('User not found or access denied');
+        const user = await res.json();
+
+        document.getElementById('username').value = user.username || '';
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('role').value = user.role || 'user';
+        document.getElementById('is_active').value = (user.is_active === 0) ? '0' : '1';
+
+        document.getElementById('pageTitle').textContent = `Edit User #${user.user_id}`;
+        document.getElementById('pageSubtitle').textContent = `Modify account details for ${user.username}`;
+      } catch (err) {
+        showToast(err.message, 'error');
+        setTimeout(() => {
+          window.location.href = 'users.html';
+        }, 1500);
+      }
+    }
+
+    async function handleEditUser(e) {
       e.preventDefault();
-      const user = {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        role: document.getElementById('role').value
+
+      const payload = {
+        username: document.getElementById('username').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        role: document.getElementById('role').value,
+        is_active: parseInt(document.getElementById('is_active').value, 10)
       };
 
-      const res = await fetch(`/api/users/${user_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token
-        },
-        body: JSON.stringify(user)
-      });
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-      const data = await res.json();
-      if (res.ok) {
-        alert('User updated');
-        window.location.href = 'users.html';
-      } else {
-        alert(data.message || 'Failed to update user');
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update user');
+
+        showToast('User account updated successfully!', 'success');
+        setTimeout(() => {
+          window.location.href = 'users.html';
+        }, 1200);
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
       }
-    });
+    }
 
-    protect('admin');
     loadUser();
   </script>
 </body>

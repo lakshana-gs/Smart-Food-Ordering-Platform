@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Orders & Deliveries - Admin</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .admin-table th {
+      background: var(--bg-muted);
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-light);
+      text-align: left;
+    }
+    .admin-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-main);
+    }
+    .admin-table tr:hover td {
+      background: #faf8f5;
+    }
+  </style>
+</head>
+<body style="background: #f8fafc; min-height: 100vh;">
+
+  <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #db2777, #9333ea); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          📦
+        </div>
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Order & Delivery Management</h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Track orders, update statuses, and enforce valid lifecycle transitions</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="dashboard.html" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+    </div>
+
+    <!-- Admin Nav -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn active"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <!-- Filter & Search Toolbar -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 18px 24px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="filter-tab active" data-status="All" onclick="filterByStatus('All', this)">All</button>
+        <button class="filter-tab" data-status="Pending" onclick="filterByStatus('Pending', this)">Pending</button>
+        <button class="filter-tab" data-status="Confirmed" onclick="filterByStatus('Confirmed', this)">Confirmed</button>
+        <button class="filter-tab" data-status="Preparing" onclick="filterByStatus('Preparing', this)">Preparing</button>
+        <button class="filter-tab" data-status="Out for Delivery" onclick="filterByStatus('Out for Delivery', this)">Out for Delivery</button>
+        <button class="filter-tab" data-status="Delivered" onclick="filterByStatus('Delivered', this)">Delivered</button>
+        <button class="filter-tab" data-status="Cancelled" onclick="filterByStatus('Cancelled', this)">Cancelled</button>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="orderSearchInput" class="form-control" placeholder="Search Order # or Customer..." style="width: 240px; padding: 8px 12px; font-size: 0.88rem;" oninput="debounceOrderSearch()">
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Placed Date</th>
+              <th>Customer</th>
+              <th>Phone & Address</th>
+              <th>Items Ordered</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 10px;">Loading orders...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Order Modal (Phase 5) -->
+  <dialog id="manageOrderModal" class="app-modal" style="max-width: 620px;">
+    <div class="modal-header">
+      <h3 id="modalOrderHeader">Order Details</h3>
+      <button class="modal-close-btn" onclick="closeModal('manageOrderModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modalOrderId">
+
+      <!-- Order Summary Card -->
+      <div style="background: var(--bg-muted); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; font-size: 0.9rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Customer: <strong id="mCustName">--</strong></span>
+          <span>Contact: <strong id="mCustPhone">--</strong></span>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <span style="color: var(--text-muted);">Address:</span> <span id="mDeliveryAddr">--</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px dashed var(--border-light);">
+          <span>Payment: <strong id="mPayMethod">COD</strong></span>
+          <span>Order Total: <strong id="mOrderTotal" style="color: var(--accent); font-size: 1.1rem;">Rs. 0.00</strong></span>
+        </div>
+      </div>
+
+      <!-- Items Ordered -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Items Snapshot</h4>
+      <div id="mItemsList" style="border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 10px; margin-bottom: 20px; max-height: 160px; overflow-y: auto;"></div>
+
+      <!-- Update Status Form with Allowed Transition Enforcement -->
+      <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 18px;">
+        <h4 style="font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;">Update Delivery Status</h4>
+        <p id="mCurrentStatusHint" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"></p>
+
+        <div class="form-group">
+          <label for="mNextStatusSelect">Transition To Next Allowed Status:</label>
+          <select id="mNextStatusSelect" class="form-control" required style="font-weight: 600;">
+          </select>
+        </div>
+
+        <button onclick="handleStatusUpdateSubmit()" id="updateStatusBtn" class="btn btn-primary btn-block btn-sm">
+          <i class="fas fa-sync-alt"></i> Apply Status Update
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="../main.js"></script>
+  <script>
+    protect('admin');
+
+    let currentFilterStatus = 'All';
+    let searchTimer = null;
+    let cachedOrderDetails = null;
+
+    const VALID_TRANSITIONS = {
+      'Pending': ['Confirmed', 'Cancelled'],
+      'Confirmed': ['Preparing', 'Cancelled'],
+      'Preparing': ['Out for Delivery', 'Cancelled'],
+      'Out for Delivery': ['Delivered', 'Cancelled'],
+      'Delivered': [],
+      'Cancelled': []
+    };
+
+    const STATUS_EMOJIS = {
+      'Pending': '⏳',
+      'Confirmed': '✅',
+      'Preparing': '🍳',
+      'Out for Delivery': '🚚',
+      'Delivered': '🎉',
+      'Cancelled': '❌'
+    };
+
+    function filterByStatus(status, btn) {
+      currentFilterStatus = status;
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      loadOrders();
+    }
+
+    function debounceOrderSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(loadOrders, 350);
+    }
+
+    async function loadOrders() {
+      const token = getToken();
+      const search = document.getElementById('orderSearchInput').value.trim();
+      const tbody = document.getElementById('ordersTableBody');
+
+      try {
+        const params = new URLSearchParams();
+        if (currentFilterStatus && currentFilterStatus !== 'All') params.set('status', currentFilterStatus);
+        if (search) params.set('search', search);
+
+        const res = await fetch(`/api/admin/orders?${params.toString()}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Failed to load orders');
+        const orders = await res.json();
+
+        if (orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">No orders match your filter.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => {
+          const statusLower = (o.status || 'Pending').toLowerCase().replace(/\s+/g, '-');
+          const dateStr = new Date(o.created_at).toLocaleString('en-US', {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+
+          return `
+            <tr>
+              <td><strong>#${o.id}</strong></td>
+              <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
+              <td>
+                <div style="font-weight: 700;">${o.customerName || 'Customer'}</div>
+                <small style="color: var(--text-muted);">${o.customerEmail || ''}</small>
+              </td>
+              <td style="max-width: 220px; font-size: 0.85rem;">
+                <div><i class="fas fa-phone"></i> ${o.contact_phone || 'None'}</div>
+                <div style="color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${o.delivery_address || 'Standard'}</div>
+              </td>
+              <td style="max-width: 240px; font-size: 0.85rem;">
+                <span title="${o.itemsSummary || ''}">${o.itemsSummary || 'Food items'}</span>
+              </td>
+              <td>
+                <span class="status-badge ${statusLower}">
+                  ${o.statusEmoji || STATUS_EMOJIS[o.status] || '📦'} ${o.status}
+                </span>
+              </td>
+              <td><strong style="color: var(--accent);">Rs. ${o.total}</strong></td>
+              <td>
+                <button onclick="openManageModal(${o.id})" class="btn btn-secondary btn-sm" title="Manage Status">
+                  <i class="fas fa-sliders"></i> Manage
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Orders error:', err);
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--error);">Failed to load orders.</td></tr>';
+      }
+    }
+
+    async function openManageModal(orderId) {
+      const token = getToken();
+      try {
+        const res = await fetch(`/api/admin/orders/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Order details not found');
+
+        const data = await res.json();
+        const order = data.order;
+        const items = data.items;
+        cachedOrderDetails = order;
+
+        document.getElementById('modalOrderId').value = order.id;
+        document.getElementById('modalOrderHeader').textContent = `Manage Order #${order.id}`;
+        document.getElementById('mCustName').textContent = order.customer_name || order.userAccountName || 'Customer';
+        document.getElementById('mCustPhone').textContent = order.contact_phone || 'None';
+        document.getElementById('mDeliveryAddr').textContent = order.delivery_address || 'None';
+        document.getElementById('mPayMethod').textContent = order.payment_method || 'COD';
+        document.getElementById('mOrderTotal').textContent = `Rs. ${order.total}`;
+
+        // Render items
+        const itemsList = document.getElementById('mItemsList');
+        itemsList.innerHTML = items.map(i => `
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.88rem;">
+            <span>${i.emoji || '🍽️'} <strong>${i.name}</strong> × ${i.quantity}</span>
+            <span style="font-weight: 700;">Rs. ${i.total}</span>
+          </div>
+        `).join('');
+
+        // Allowed transitions dropdown
+        const currentStatus = order.status || 'Pending';
+        const allowedNext = VALID_TRANSITIONS[currentStatus] || [];
+        const hint = document.getElementById('mCurrentStatusHint');
+        const select = document.getElementById('mNextStatusSelect');
+        const updateBtn = document.getElementById('updateStatusBtn');
+
+        hint.innerHTML = `Current Status: <strong>${currentStatus}</strong>`;
+
+        if (allowedNext.length === 0) {
+          select.innerHTML = `<option value="">No further transitions (Order is in final state: ${currentStatus})</option>`;
+          select.disabled = true;
+          updateBtn.disabled = true;
+        } else {
+          select.disabled = false;
+          updateBtn.disabled = false;
+          select.innerHTML = allowedNext.map(s => `
+            <option value="${s}">${STATUS_EMOJIS[s] || ''} Move to "${s}"</option>
+          `).join('');
+        }
+
+        openModal('manageOrderModal');
+      } catch (err) {
+        showToast('Error opening order details', 'error');
+      }
+    }
+
+    async function handleStatusUpdateSubmit() {
+      const orderId = document.getElementById('modalOrderId').value;
+      const nextStatus = document.getElementById('mNextStatusSelect').value;
+      const token = getToken();
+
+      if (!nextStatus) return;
+
+      const emoji = STATUS_EMOJIS[nextStatus] || '';
+
+      try {
+        const res = await fetch(`/api/orders/update/${orderId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: nextStatus, statusEmoji: emoji })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Order #${orderId} updated to ${nextStatus}`, 'success');
+          closeModal('manageOrderModal');
+          loadOrders();
+        } else {
+          showToast(data.message || 'Status transition rejected', 'error');
+        }
+      } catch (err) {
+        showToast('Error updating status', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('id')) {
+        openManageModal(urlParams.get('id'));
+      }
+      loadOrders();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chef Deliver & Track - Fresh, Hot Food Delivered to Your Door</title>
+  <meta name="description" content="Order delicious gourmet burgers, artisan pizzas, fresh sandwiches, biryani, and desserts online with live order tracking and fast doorstep delivery.">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Dynamic Header / Navbar -->
+  <header class="site-header"></header>
+
+  <main>
+    <!-- Welcoming Hero Section -->
+    <section class="hero-banner">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-tag">
+              <i class="fas fa-fire"></i> Hot & Fresh Delivery in 20-30 Mins
+            </div>
+            <h1 class="hero-title">
+              Crave It? <span>We Deliver It</span> Fresh & Piping Hot.
+            </h1>
+            <p class="hero-subtitle">
+              From artisan sourdough pizzas and juicy gourmet burgers to fragrant biryanis and decadent desserts — authentic flavours crafted by passionate chefs.
+            </p>
+            
+            <form id="heroSearchForm" class="hero-search-box" onsubmit="handleHeroSearch(event)">
+              <input type="text" id="heroSearchInput" placeholder="Search pizza, burger, biryani, cake..." aria-label="Search food">
+              <button type="submit" class="btn btn-primary" style="border-radius: var(--radius-full);">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </form>
+
+            <div class="hero-features">
+              <div class="hero-feature-pill">
+                <i class="fas fa-badge-check" style="color: var(--success);"></i> 100% Quality Ingredients
+              </div>
+              <div class="hero-feature-pill">
+                <i class="fas fa-truck-fast" style="color: var(--primary-dark);"></i> Live Order Tracking
+              </div>
+              <div class="hero-feature-pill">
+                <i class="fas fa-shield-check" style="color: var(--info);"></i> Safe & Contactless
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Visual Feature Card -->
+          <div class="hero-visual-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="dietary-mark veg" title="Vegetarian"></span>
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--secondary);">🔥 Today's Chef Special</span>
+            </div>
+            <div style="text-align: center; padding: 20px 0; background: var(--bg-muted); border-radius: var(--radius-md);">
+              <div style="font-size: 5.5rem; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.12));">🍕</div>
+              <h3 style="font-size: 1.3rem; margin-top: 10px; color: var(--accent);">Margherita Pizza</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">San Marzano tomatoes, buffalo mozzarella, fresh basil</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Special Price</span>
+                <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent);">Rs. 199.00</div>
+              </div>
+              <a href="customer/menu.html" class="btn btn-primary btn-sm">
+                Explore Full Menu <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active Promo Codes Banner -->
+    <section class="container" style="margin-bottom: 40px;">
+      <div style="background: linear-gradient(135deg, #fef3c7, #fed7aa); border: 1px dashed var(--primary); border-radius: var(--radius-lg); padding: 20px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="font-size: 2.2rem;">🎁</div>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--accent); margin-bottom: 2px;">Special Offers & Discounts</h3>
+            <p style="font-size: 0.9rem; color: var(--accent-muted);">Use promo code at checkout to unlock instant savings!</p>
+          </div>
+        </div>
+        <div id="promoPills" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div style="background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 14px; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+            <span>WELCOME20</span> <small style="color: var(--text-muted); font-weight: 500;">(20% OFF)</small>
+          </div>
+          <div style="background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 14px; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+            <span>FLAT50</span> <small style="color: var(--text-muted); font-weight: 500;">(Flat Rs. 50 OFF)</small>
+          </div>
+          <div style="background: white; border: 1px solid rgba(0,0,0,0.1); padding: 6px 14px; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+            <span>FREESHIP</span> <small style="color: var(--text-muted); font-weight: 500;">(Free Delivery)</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Food Categories Explorer -->
+    <section class="container" style="margin-bottom: 48px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+        <div>
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">Explore Categories</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Select your favourite cuisine to browse</p>
+        </div>
+        <a href="customer/menu.html" style="font-weight: 700; color: var(--primary-dark); font-size: 0.95rem; text-decoration: none;">
+          View All <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+
+      <div class="category-bar">
+        <a href="customer/menu.html?category=All" class="category-pill active">
+          <span>🍽️</span> All Dishes
+        </a>
+        <a href="customer/menu.html?category=Burgers" class="category-pill">
+          <span>🍔</span> Burgers
+        </a>
+        <a href="customer/menu.html?category=Pizzas" class="category-pill">
+          <span>🍕</span> Pizzas
+        </a>
+        <a href="customer/menu.html?category=Sandwiches" class="category-pill">
+          <span>🥪</span> Sandwiches
+        </a>
+        <a href="customer/menu.html?category=Biryani%20%26%20Mains" class="category-pill">
+          <span>🍗</span> Biryani & Mains
+        </a>
+        <a href="customer/menu.html?category=South%20Indian" class="category-pill">
+          <span>🥞</span> South Indian
+        </a>
+        <a href="customer/menu.html?category=Sides" class="category-pill">
+          <span>🍟</span> Sides
+        </a>
+        <a href="customer/menu.html?category=Wraps" class="category-pill">
+          <span>🌯</span> Wraps
+        </a>
+        <a href="customer/menu.html?category=Desserts" class="category-pill">
+          <span>🍰</span> Desserts
+        </a>
+      </div>
+    </section>
+
+    <!-- Popular Dishes Section (Real DB data) -->
+    <section class="container" style="margin-bottom: 56px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+        <div>
+          <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary);">Trending Now</span>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 2px;">Customer Favourites & Most Ordered</h2>
+        </div>
+        <a href="customer/menu.html?sort=popular" class="btn btn-secondary btn-sm">
+          Browse Popular <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div id="popularGrid" class="food-grid">
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p style="margin-top: 10px;">Loading customer favourites...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personalized Recommendations Section -->
+    <section class="container" style="margin-bottom: 56px;">
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+          <div>
+            <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-dark);">Smart Discovery</span>
+            <h2 id="forYouTitle" style="font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 2px;">Recommended For You</h2>
+            <p id="forYouSubtitle" style="color: var(--text-muted); font-size: 0.95rem;">Curated based on actual orders and popular tastes</p>
+          </div>
+        </div>
+
+        <div id="forYouGrid" class="food-grid">
+          <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-muted);">
+            <i class="fas fa-spinner fa-spin"></i> Loading recommendations...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="container" style="margin-bottom: 64px;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 36px;">
+        <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--secondary);">Simple 4-Step Process</span>
+        <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-top: 4px;">How Chef Deliver Works</h2>
+        <p style="color: var(--text-muted);">Enjoying gourmet food has never been simpler or faster.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+          <div style="width: 54px; height: 54px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;">
+            1
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Browse Fresh Menu</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Choose from vegetarian and non-vegetarian artisan meals prepared to perfection.</p>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+          <div style="width: 54px; height: 54px; border-radius: var(--radius-full); background: var(--secondary-light); color: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;">
+            2
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Easy Checkout</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Apply discount coupons, enter your address, and select Cash on Delivery or Card.</p>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+          <div style="width: 54px; height: 54px; border-radius: var(--radius-full); background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;">
+            3
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Live Kitchen Tracking</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Track real-time progress as our kitchen prepares, packs, and dispatches your order.</p>
+        </div>
+
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; text-align: center;">
+          <div style="width: 54px; height: 54px; border-radius: var(--radius-full); background: var(--veg-bg); color: var(--veg-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;">
+            4
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Hot Doorstep Delivery</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Receive your freshly cooked meal piping hot, packaged in eco-friendly tamper-proof boxes.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Detailed Food Item Modal (Phase 2) -->
+  <dialog id="foodDetailModal" class="app-modal">
+    <div class="modal-header">
+      <h3 id="modalFoodTitle">Food Details</h3>
+      <button class="modal-close-btn" onclick="closeModal('foodDetailModal')" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align: center; background: linear-gradient(135deg, #fff7ed, #fef3c7); padding: 24px; border-radius: var(--radius-md); margin-bottom: 18px;">
+        <span id="modalFoodEmoji" style="font-size: 5rem; display: block;">🍽️</span>
+        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
+          <span id="modalFoodDietary" class="category-tag"></span>
+          <span id="modalFoodCategory" class="category-tag"></span>
+          <span id="modalFoodRating" class="rating-badge"></span>
+        </div>
+      </div>
+
+      <p id="modalFoodDesc" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; font-size: 0.95rem;"></p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--bg-muted); padding: 14px; border-radius: var(--radius-md); font-size: 0.88rem; margin-bottom: 20px;">
+        <div><strong>Prep Time:</strong> <span id="modalFoodPrep"></span> mins</div>
+        <div><strong>Status:</strong> <span id="modalFoodAvail" style="color: var(--success); font-weight: 600;">Available</span></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Item Price</span>
+          <div id="modalFoodPrice" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">Rs. 0.00</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-full); background: white;">
+            <button onclick="adjustModalQty(-1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">-</button>
+            <span id="modalQtyDisplay" style="font-weight: 700; min-width: 20px; text-align: center;">1</span>
+            <button onclick="adjustModalQty(1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">+</button>
+          </div>
+          <button id="modalAddToCartBtn" class="btn btn-primary" onclick="addModalItemToCart()">
+            <i class="fas fa-shopping-bag"></i> Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dynamic Footer -->
+  <footer class="site-footer"></footer>
+
+  <script src="main.js"></script>
+  <script>
+    renderNavbar('home');
+    renderFooter();
+
+    let activeModalItem = null;
+    let modalQuantity = 1;
+
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const q = document.getElementById('heroSearchInput').value.trim();
+      if (q) {
+        window.location.href = `customer/menu.html?search=${encodeURIComponent(q)}`;
+      } else {
+        window.location.href = 'customer/menu.html';
+      }
+    }
+
+    // Load Popular Dishes
+    async function loadPopularDishes() {
+      const container = document.getElementById('popularGrid');
+      try {
+        const res = await fetch('/api/recommendations/popular?limit=6');
+        const items = await res.json();
+        
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div style="grid-column: 1/-1;" class="empty-state"><p>No items found.</p></div>';
+          return;
+        }
+
+        container.innerHTML = items.map(item => renderFoodCard(item)).join('');
+        checkFavourites();
+      } catch (err) {
+        console.error('Popular dishes error:', err);
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--error);">Error loading popular dishes.</div>';
+      }
+    }
+
+    // Load For-You Recommendations
+    async function loadForYou() {
+      const container = document.getElementById('forYouGrid');
+      const token = getToken();
+      try {
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const res = await fetch('/api/recommendations/for-you?limit=4', { headers });
+        const data = await res.json();
+        const items = data.items || [];
+
+        if (data.isPersonalized) {
+          document.getElementById('forYouTitle').textContent = 'Handpicked For You';
+          document.getElementById('forYouSubtitle').textContent = 'Based on your previous orders and saved dishes';
+        }
+
+        if (items.length === 0) {
+          container.innerHTML = '<div style="grid-column: 1/-1;" class="empty-state"><p>Explore our menu to get personalized recommendations!</p></div>';
+          return;
+        }
+
+        container.innerHTML = items.map(item => renderFoodCard(item)).join('');
+        checkFavourites();
+      } catch (err) {
+        console.error('For you error:', err);
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--error);">Error loading recommendations.</div>';
+      }
+    }
+
+    // Helper: render single food card
+    function renderFoodCard(item) {
+      const isVeg = (item.dietary || '').toLowerCase() === 'veg';
+      const price = parseFloat(item.price).toFixed(2);
+      const isAvailable = Boolean(item.is_available);
+
+      return `
+        <div class="food-card" data-id="${item.id}">
+          <div class="food-card-media" onclick="openItemModal(${item.id})">
+            <span class="food-card-emoji">${item.emoji || '🍽️'}</span>
+            <span class="food-card-prep"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
+            ${!isAvailable ? '<span class="sold-out-badge">Sold Out</span>' : ''}
+            <button class="favourite-btn" data-fav-id="${item.id}" onclick="event.stopPropagation(); toggleFavouriteApi(${item.id}, this)" title="Save to Favourites">
+              <i class="far fa-heart"></i>
+            </button>
+          </div>
+
+          <div class="food-card-body">
+            <div class="food-card-header">
+              <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}" title="${item.dietary || 'Dish'}"></span>
+              <span class="rating-badge">★ ${item.rating || '4.5'}</span>
+            </div>
+
+            <h3 class="food-card-title" onclick="openItemModal(${item.id})">${item.name}</h3>
+            <p class="food-card-desc">${item.description || 'Deliciously prepared with selected fresh ingredients.'}</p>
+
+            ${item.recommendationReason ? `
+              <div style="font-size: 0.78rem; color: var(--secondary); font-weight: 600; margin-bottom: 8px;">
+                <i class="fas fa-sparkles"></i> ${item.recommendationReason}
+              </div>
+            ` : ''}
+
+            <div class="food-card-footer">
+              <div class="food-price">Rs. ${price}</div>
+              ${isAvailable ? `
+                <button class="add-btn" onclick="addToCartApi(${item.id})">
+                  <i class="fas fa-plus"></i> Add
+                </button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" disabled>Sold Out</button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Check which items are favourited
+    async function checkFavourites() {
+      const token = getToken();
+      if (!token) return;
+      try {
+        const res = await fetch('/api/favourites/ids', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const ids = await res.json();
+          ids.forEach(id => {
+            const btns = document.querySelectorAll(`[data-fav-id="${id}"]`);
+            btns.forEach(btn => {
+              btn.classList.add('active');
+              btn.innerHTML = '<i class="fas fa-heart" style="color: #dc2626;"></i>';
+            });
+          });
+        }
+      } catch (e) {
+        // Ignore background fav check error
+      }
+    }
+
+    // Open detail modal
+    async function openItemModal(itemId) {
+      try {
+        const res = await fetch(`/api/menu/${itemId}`);
+        if (!res.ok) return;
+        const item = await res.json();
+        activeModalItem = item;
+        modalQuantity = 1;
+
+        document.getElementById('modalFoodTitle').textContent = item.name;
+        document.getElementById('modalFoodEmoji').textContent = item.emoji || '🍽️';
+        document.getElementById('modalFoodDietary').textContent = item.dietary || 'Standard';
+        document.getElementById('modalFoodCategory').textContent = item.category || 'Special';
+        document.getElementById('modalFoodRating').textContent = `★ ${item.rating || '4.5'} (${item.rating_count || 12} reviews)`;
+        document.getElementById('modalFoodDesc').textContent = item.description || 'Fresh gourmet meal prepared by our expert kitchen staff using selected quality ingredients.';
+        document.getElementById('modalFoodPrep').textContent = item.prep_minutes || 20;
+        document.getElementById('modalFoodPrice').textContent = `Rs. ${parseFloat(item.price).toFixed(2)}`;
+        document.getElementById('modalQtyDisplay').textContent = '1';
+
+        const availEl = document.getElementById('modalFoodAvail');
+        const addBtn = document.getElementById('modalAddToCartBtn');
+        if (item.is_available) {
+          availEl.textContent = 'In Stock & Fresh';
+          availEl.style.color = 'var(--success)';
+          addBtn.disabled = false;
+        } else {
+          availEl.textContent = 'Currently Sold Out';
+          availEl.style.color = 'var(--error)';
+          addBtn.disabled = true;
+        }
+
+        openModal('foodDetailModal');
+      } catch (err) {
+        console.error('Modal load error:', err);
+      }
+    }
+
+    function adjustModalQty(delta) {
+      modalQuantity = Math.max(1, modalQuantity + delta);
+      document.getElementById('modalQtyDisplay').textContent = modalQuantity;
+    }
+
+    async function addModalItemToCart() {
+      if (!activeModalItem) return;
+      const success = await addToCartApi(activeModalItem.id, modalQuantity);
+      if (success) {
+        closeModal('foodDetailModal');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPopularDishes();
+      loadForYou();
+    });
+  </script>
+</body>
+</html>

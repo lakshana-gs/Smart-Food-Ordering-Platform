@@ -2,68 +2,327 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Users - Admin Dashboard</title>
-  <link rel="stylesheet" href="../css/Pages.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Users & Roles - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .admin-table th {
+      background: var(--bg-muted);
+      padding: 14px 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td {
+      background: #faf8f5;
+    }
+  </style>
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">User Management</p>
-      </div>
-    </header>
+<body style="background: #f8fafc; min-height: 100vh;">
 
-    <div class="dashboard-main">
-      <div class="action-bar">
-        <a href="add-user.html" class="action-btn float">
+  <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
+          👥
+        </div>
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">User Accounts & Roles</h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Manage store staff, permissions, and customer account safety</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="add-user.html" class="btn btn-primary btn-sm">
           <i class="fas fa-user-plus"></i> Add New User
         </a>
-      </div>
-
-      <div class="user-list-container slide-in">
-        <ul id="userList" class="starling-list"></ul>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">
+          <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
       </div>
     </div>
 
-    <footer class="admin-footer">
-      <button onclick="logout()" class="logout-btn glow">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </footer>
+    <!-- Admin Subnavigation Bar -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn active"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card" style="padding: 16px 20px; margin-bottom: 24px;">
+      <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex: 1; max-width: 600px;">
+          <div style="position: relative; flex: 1; min-width: 200px;">
+            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" id="searchInput" placeholder="Search by username or email..." class="form-input" style="padding-left: 38px;" oninput="fetchUsers()">
+          </div>
+
+          <select id="roleFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="fetchUsers()">
+            <option value="All">All Roles</option>
+            <option value="admin">Admins Only</option>
+            <option value="user">Customers Only</option>
+          </select>
+
+          <select id="statusFilter" class="form-input" style="width: auto; min-width: 150px;" onchange="fetchUsers()">
+            <option value="All">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="deactivated">Deactivated</option>
+          </select>
+        </div>
+
+        <div id="userCountBadge" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">
+          Loading accounts...
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Table Container -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">User ID</th>
+              <th>User & Identity</th>
+              <th>Email Address</th>
+              <th>Assigned Role</th>
+              <th>Account Status</th>
+              <th>Registered On</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 10px;">Loading users from database...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
-    async function fetchUsers() {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/users', {
-        headers: { Authorization: token }
-      });
+    protect('admin');
 
-      if (!res.ok) {
-        alert('Failed to fetch users.');
+    const currentUser = getUser();
+
+    async function fetchUsers() {
+      const search = (document.getElementById('searchInput').value || '').trim();
+      const role = document.getElementById('roleFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (role !== 'All') params.append('role', role);
+      if (status !== 'All') params.append('status', status);
+
+      try {
+        const res = await fetch(`/api/users?${params.toString()}`, {
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to load users');
+        }
+
+        const users = await res.json();
+        renderUsers(users);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        document.getElementById('userTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--error);">
+              <i class="fas fa-exclamation-triangle fa-2x"></i>
+              <p style="margin-top: 10px;">${err.message}</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById('userTableBody');
+      const badge = document.getElementById('userCountBadge');
+
+      badge.textContent = `Found ${users.length} accounts`;
+
+      if (users.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <p style="font-size: 1.1rem; margin: 0;">No accounts found matching your query.</p>
+            </td>
+          </tr>
+        `;
         return;
       }
 
-      const users = await res.json();
-      const container = document.getElementById('userList');
-      container.innerHTML = users.map(u =>
-        `<li class="fade-in">
-          <div class="user-info">
-            <span class="user-name">${u.username}</span>
-            <span class="user-email">${u.email}</span>
-            <span class="user-role">${u.role}</span>
-          </div>
-          <a href="edit-user.html?id=${u.user_id}" class="edit-btn">
-            <i class="fas fa-edit"></i> Edit
-          </a>
-        </li>`
-      ).join('');
+      tbody.innerHTML = users.map(u => {
+        const isAdmin = u.role === 'admin';
+        const roleBadge = isAdmin
+          ? `<span style="background: #fdf2f8; color: #be185d; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-shield-alt"></i> Admin</span>`
+          : `<span style="background: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-user"></i> Customer</span>`;
+
+        const isActive = u.is_active === 1 || u.is_active === true;
+        const statusBadge = isActive
+          ? `<span style="background: #ecfdf5; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-check-circle"></i> Active</span>`
+          : `<span style="background: #fef2f2; color: #991b1b; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-ban"></i> Deactivated</span>`;
+
+        const isSelf = currentUser && currentUser.id === u.user_id;
+
+        const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }) : 'Legacy Record';
+
+        return `
+          <tr>
+            <td style="color: var(--text-muted); font-weight: 700;">#${u.user_id}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: ${isAdmin ? '#fce7f3' : '#e0e7ff'}; color: ${isAdmin ? '#be185d' : '#3730a3'}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem;">
+                  ${(u.username || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div style="font-weight: 700; color: var(--accent);">
+                    ${escapeHtml(u.username)}
+                    ${isSelf ? '<span style="font-size: 0.7rem; background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">You</span>' : ''}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td style="color: var(--text-muted); font-family: monospace;">${escapeHtml(u.email)}</td>
+            <td>${roleBadge}</td>
+            <td>${statusBadge}</td>
+            <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                <a href="edit-user.html?id=${u.user_id}" class="btn btn-sm btn-secondary" title="Edit user details">
+                  <i class="fas fa-edit"></i>
+                </a>
+                ${!isSelf ? `
+                  <button onclick="toggleUserStatus(${u.user_id}, ${isActive ? 0 : 1})" class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'}" title="${isActive ? 'Deactivate account' : 'Activate account'}">
+                    <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'}"></i>
+                  </button>
+                  <button onclick="deleteUser(${u.user_id}, '${escapeHtml(u.username)}')" class="btn btn-sm btn-outline-danger" title="Delete account">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                ` : `
+                  <span style="font-size: 0.75rem; color: var(--text-muted); padding: 4px 8px;">(Protected)</span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    protect('admin');
+    async function toggleUserStatus(id, targetActive) {
+      const actionName = targetActive ? 'activate' : 'deactivate';
+      if (!confirm(`Are you sure you want to ${actionName} this user account?`)) return;
+
+      try {
+        const res = await fetch(`/api/users/${id}/status`, {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ is_active: targetActive })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || `Failed to ${actionName} user`);
+
+        showToast(data.message, 'success');
+        fetchUsers();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function deleteUser(id, name) {
+      if (!confirm(`Are you sure you want to delete user "${name}"? If they have orders, their account will be deactivated instead to safeguard order history.`)) return;
+
+      try {
+        const res = await fetch(`/api/users/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to delete user');
+
+        showToast(data.message, 'info');
+        fetchUsers();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     fetchUsers();
   </script>
 </body>

@@ -3,93 +3,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Track Order - Chef Deliver</title>
-  <link rel="stylesheet" href="../css/Pages.css">
+  <title>Live Order Tracking - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .tracking-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+    .status-hero {
+      background: linear-gradient(135deg, #fffbeb, #fed7aa);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+  </style>
 </head>
 <body>
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Chef Deliver and Track</h1>
-        <p class="admin-subtitle">Order Tracking</p>
+
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
+
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <!-- Title & Search Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+      <div>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">Live Order Tracking</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Monitor your kitchen preparation and delivery progress in real time.</p>
       </div>
-    </header>
 
-    <main class="dashboard-main">
-      <div class="form-card">
-        <h2>Track Your Order</h2>
-        <form id="trackForm" class="starling-form">
-          <div class="form-group">
-            <label for="order_id">Order ID</label>
-            <input type="text" id="order_id" placeholder="Enter Order ID" required>
+      <form id="trackForm" onsubmit="handleTrackSubmit(event)" style="display: flex; gap: 8px;">
+        <input type="number" id="orderIdInput" class="form-control" placeholder="Enter Order #" required style="width: 170px;">
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="fas fa-search"></i> Track
+        </button>
+      </form>
+    </div>
+
+    <!-- Loading State -->
+    <div id="trackLoading" style="text-align: center; padding: 60px; color: var(--text-muted); display: none;">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 12px;">Fetching order status...</p>
+    </div>
+
+    <!-- Order Track View -->
+    <div id="trackContent" style="display: none;">
+      <!-- Hero Status Card -->
+      <div class="status-hero">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">
+            Order Reference <span id="trackOrderIdDisplay">#--</span>
           </div>
-          <button type="submit" class="btn btn-primary">Track Order</button>
-        </form>
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+            <span id="trackHeroEmoji" style="font-size: 2.2rem;">⏳</span>
+            <div>
+              <h2 id="trackHeroStatus" style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Pending</h2>
+              <small id="trackLastUpdated" style="color: var(--text-muted);">Updated just now</small>
+            </div>
+          </div>
+        </div>
 
-        <div id="result" class="mt-lg"></div>
-
-        <div class="action-bar">
-          <a href="menu.html" class="btn btn-secondary">← Back to Menu</a>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button onclick="refreshCurrentOrder()" class="btn btn-secondary btn-sm" title="Refresh latest status">
+            <i class="fas fa-rotate"></i> Refresh
+          </button>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+            <input type="checkbox" id="autoRefreshCheck" checked onchange="toggleAutoRefresh(this)" style="accent-color: var(--primary);"> Auto-refresh
+          </label>
         </div>
       </div>
-    </main>
-  </div>
+
+      <!-- Real Status Timeline (Phase 2 & Phase 4) -->
+      <div class="tracking-card">
+        <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-bottom: 24px;">Order Progress Timeline</h3>
+        <div id="timelineContainer" class="timeline-wrap"></div>
+      </div>
+
+      <!-- Order Details Grid -->
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: flex-start;">
+        <!-- Items In Order -->
+        <div class="tracking-card">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 16px;">Items in this Order</h3>
+          <div id="trackItemsList"></div>
+
+          <div style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-light); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; color: var(--text-main);">Total Amount:</span>
+            <strong id="trackOrderTotal" style="font-size: 1.25rem; color: var(--accent);">Rs. 0.00</strong>
+          </div>
+        </div>
+
+        <!-- Delivery Destination -->
+        <div class="tracking-card">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 16px;">Delivery Details</h3>
+          
+          <div style="margin-bottom: 14px;">
+            <span style="font-size: 0.82rem; color: var(--text-muted); display: block;">Recipient</span>
+            <strong id="trackCustName" style="color: var(--text-main);">--</strong>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <span style="font-size: 0.82rem; color: var(--text-muted); display: block;">Delivery Address</span>
+            <span id="trackAddress" style="color: var(--text-main); font-weight: 500;">--</span>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <span style="font-size: 0.82rem; color: var(--text-muted); display: block;">Contact Phone</span>
+            <span id="trackPhone" style="color: var(--text-main); font-weight: 500;">--</span>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <span style="font-size: 0.82rem; color: var(--text-muted); display: block;">Payment Method</span>
+            <strong id="trackPayment" style="color: var(--accent);">--</strong>
+          </div>
+
+          <a id="trackInvoiceBtn" href="#" class="btn btn-secondary btn-block btn-sm">
+            <i class="fas fa-file-invoice"></i> View Official Invoice
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="trackError" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">🔍</div>
+      <h3 id="trackErrorTitle" class="empty-state-title">Order Not Found</h3>
+      <p id="trackErrorDesc" class="empty-state-desc">We couldn't find an order matching that ID. Please check the order number and try again.</p>
+      <a href="order-history.html" class="btn btn-secondary">View Order History</a>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
 
   <script src="../main.js"></script>
   <script>
-    protect('user');
+    renderNavbar('track');
+    renderFooter();
 
-    async function trackOrder(order_id) {
-      if (!order_id) return;
-      const token = localStorage.getItem('token');
-      const resultDiv = document.getElementById('result');
+    let currentTrackOrderId = null;
+    let autoRefreshTimer = null;
 
-      resultDiv.innerHTML = '<div class="list-item shimmer">Loading order details...</div>';
-
-      try {
-        const res = await fetch(`/api/orders/track/${order_id}`, {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        const data = await res.json();
-
-        if (res.ok) {
-          sessionStorage.setItem('lastTrackedOrderId', order_id);
-          const currentUrl = new URL(window.location);
-          currentUrl.searchParams.set('order_id', order_id);
-          window.history.replaceState({}, '', currentUrl);
-
-          resultDiv.innerHTML = `
-            <div class="list-item">
-              <h3>Order #${order_id}</h3>
-              <p><strong>Status:</strong> ${data.status} ${data.statusEmoji || ''}</p>
-              <p><strong>Last Updated:</strong> ${new Date(data.updatedAt).toLocaleString()}</p>
-            </div>
-          `;
-        } else {
-          resultDiv.innerHTML = `<div class="list-item error">${data.message || 'Order not found'}</div>`;
-        }
-      } catch (error) {
-        console.error('Tracking error:', error);
-        resultDiv.innerHTML = `<div class="list-item error">Failed to track order: ${error.message}</div>`;
+    function handleTrackSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('orderIdInput').value.trim();
+      if (id) {
+        trackOrder(id);
       }
     }
 
-    document.getElementById('trackForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const order_id = document.getElementById('order_id').value.trim();
-      trackOrder(order_id);
-    });
+    async function trackOrder(orderId) {
+      if (!orderId) return;
+      currentTrackOrderId = orderId;
+      document.getElementById('orderIdInput').value = orderId;
+      sessionStorage.setItem('lastTrackedOrderId', orderId);
+
+      const url = new URL(window.location);
+      url.searchParams.set('order_id', orderId);
+      window.history.replaceState({}, '', url);
+
+      const loading = document.getElementById('trackLoading');
+      const content = document.getElementById('trackContent');
+      const errorView = document.getElementById('trackError');
+
+      loading.style.display = 'block';
+      content.style.display = 'none';
+      errorView.style.display = 'none';
+
+      const token = getToken();
+
+      try {
+        const res = await fetch(`/api/orders/track/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        loading.style.display = 'none';
+
+        if (!res.ok) {
+          document.getElementById('trackErrorTitle').textContent = 'Order Not Accessible';
+          document.getElementById('trackErrorDesc').textContent = data.message || 'You may need to log in to view this order.';
+          errorView.style.display = 'block';
+          return;
+        }
+
+        // Render data
+        content.style.display = 'block';
+        document.getElementById('trackOrderIdDisplay').textContent = `#${data.orderId}`;
+        document.getElementById('trackHeroStatus').textContent = data.status;
+        document.getElementById('trackHeroEmoji').textContent = data.statusEmoji || '📦';
+        document.getElementById('trackLastUpdated').textContent = `Updated: ${new Date(data.updatedAt || data.createdAt).toLocaleTimeString()}`;
+        document.getElementById('trackOrderTotal').textContent = `Rs. ${data.total.toFixed(2)}`;
+        document.getElementById('trackCustName').textContent = data.customerName || 'Customer';
+        document.getElementById('trackAddress').textContent = data.deliveryAddress || 'Standard Delivery';
+        document.getElementById('trackPhone').textContent = data.contactPhone || 'On File';
+        document.getElementById('trackPayment').textContent = data.paymentMethod || 'COD';
+        document.getElementById('trackInvoiceBtn').href = `billing.html?order_id=${data.orderId}`;
+
+        // Render timeline
+        const timelineWrap = document.getElementById('timelineContainer');
+        timelineWrap.innerHTML = data.timeline.map(step => `
+          <div class="timeline-step ${step.completed ? 'completed' : ''}">
+            <div class="timeline-dot">
+              <span>${step.icon}</span>
+            </div>
+            <div class="timeline-label">${step.step}</div>
+          </div>
+        `).join('');
+
+        // Render items list
+        const itemsList = document.getElementById('trackItemsList');
+        itemsList.innerHTML = data.items.map(i => `
+          <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #f0eeea; font-size: 0.95rem;">
+            <span>${i.emoji || '🍽️'} <strong>${i.name}</strong> × ${i.quantity}</span>
+            <span style="font-weight: 700; color: var(--accent);">Rs. ${i.total.toFixed(2)}</span>
+          </div>
+        `).join('');
+
+        // Start auto-refresh if order is still active
+        if (!['Delivered', 'Cancelled'].includes(data.status)) {
+          startAutoRefresh();
+        } else {
+          stopAutoRefresh();
+        }
+      } catch (err) {
+        console.error('Track error:', err);
+        loading.style.display = 'none';
+        document.getElementById('trackErrorTitle').textContent = 'Tracking Error';
+        document.getElementById('trackErrorDesc').textContent = 'Failed to load live tracking details. Please try again.';
+        errorView.style.display = 'block';
+      }
+    }
+
+    function refreshCurrentOrder() {
+      if (currentTrackOrderId) {
+        trackOrder(currentTrackOrderId);
+        showToast('Status refreshed', 'info');
+      }
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      if (document.getElementById('autoRefreshCheck').checked) {
+        autoRefreshTimer = setInterval(() => {
+          if (currentTrackOrderId) trackOrder(currentTrackOrderId);
+        }, 12000);
+      }
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+      }
+    }
+
+    function toggleAutoRefresh(checkbox) {
+      if (checkbox.checked) {
+        startAutoRefresh();
+      } else {
+        stopAutoRefresh();
+      }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const initialOrderId = urlParams.get('order_id') || sessionStorage.getItem('lastTrackedOrderId');
-      if (initialOrderId) {
-        document.getElementById('order_id').value = initialOrderId;
-        trackOrder(initialOrderId);
+      const initialId = urlParams.get('order_id') || sessionStorage.getItem('lastTrackedOrderId');
+      if (initialId) {
+        trackOrder(initialId);
       }
     });
   </script>

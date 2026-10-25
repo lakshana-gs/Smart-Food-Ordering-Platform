@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .checkout-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color var(--transition-fast);
+      background: white;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+    .saved-address-card {
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .saved-address-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .payment-option {
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all var(--transition-fast);
+    }
+    .payment-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    @media (max-width: 900px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header"></header>
+
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <div style="margin-bottom: 24px;">
+      <a href="cart.html" style="color: var(--primary-dark); font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+        ← Back to Shopping Cart
+      </a>
+      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-top: 8px;">Confirm & Place Order</h1>
+    </div>
+
+    <div id="checkoutLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+      <i class="fas fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 12px;">Validating your cart and delivery details...</p>
+    </div>
+
+    <form id="checkoutForm" onsubmit="handlePlaceOrder(event)" style="display: none;">
+      <div class="checkout-grid">
+        <!-- Form Column -->
+        <div>
+          <!-- Customer & Contact Info -->
+          <div class="checkout-card">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+              <span style="width: 28px; height: 28px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">1</span>
+              Customer Details
+            </h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="custName">Recipient Full Name *</label>
+                <input type="text" id="custName" class="form-control" required placeholder="e.g. John Doe">
+              </div>
+              <div class="form-group">
+                <label for="custPhone">Contact Phone Number *</label>
+                <input type="tel" id="custPhone" class="form-control" required placeholder="e.g. 9876543210">
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery Address -->
+          <div class="checkout-card">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+              <span style="width: 28px; height: 28px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">2</span>
+              Delivery Address
+            </h2>
+
+            <!-- Saved Addresses Selector -->
+            <div id="savedAddressesSection" style="margin-bottom: 16px; display: none;">
+              <label style="font-size: 0.88rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block;">Select from saved addresses:</label>
+              <div id="savedAddressesList"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryAddress">Delivery Street Address & Flat/House No. *</label>
+              <textarea id="deliveryAddress" class="form-control" rows="3" required placeholder="Flat/House No, Building, Landmark, Street name, City, Pincode"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryInstructions">Delivery Instructions (Optional)</label>
+              <input type="text" id="deliveryInstructions" class="form-control" placeholder="e.g. Please ring doorbell twice, leave at security desk">
+            </div>
+
+            <div id="saveAddressCheckWrap" style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-main); margin-top: 10px;">
+              <input type="checkbox" id="saveAddressCheckbox" checked style="width: 16px; height: 16px; accent-color: var(--primary);">
+              <label for="saveAddressCheckbox" style="margin: 0; cursor: pointer;">Save this address to my profile for future orders</label>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="checkout-card">
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+              <span style="width: 28px; height: 28px; border-radius: var(--radius-full); background: var(--primary-light); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;">3</span>
+              Payment Method
+            </h2>
+
+            <div class="payment-option selected" onclick="selectPayment('COD', this)">
+              <input type="radio" name="paymentMethod" value="COD" checked style="accent-color: var(--primary);">
+              <div>
+                <strong style="color: var(--accent); display: block;">💵 Cash on Delivery (COD)</strong>
+                <small style="color: var(--text-muted);">Pay cash or via UPI QR to our delivery partner when your order arrives.</small>
+              </div>
+            </div>
+
+            <div class="payment-option" onclick="selectPayment('Online Card (Demo)', this)">
+              <input type="radio" name="paymentMethod" value="Online Card (Demo)" style="accent-color: var(--primary);">
+              <div>
+                <strong style="color: var(--accent); display: block;">💳 Online Card / NetBanking (Simulation / Demo)</strong>
+                <small style="color: var(--text-muted);">Instant simulated digital payment confirmation for demo testing.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary Column (Sticky) -->
+        <div class="checkout-card" style="position: sticky; top: 96px;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 16px;">Order Summary</h2>
+
+          <div id="summaryItemsList" style="margin-bottom: 16px; max-height: 240px; overflow-y: auto;"></div>
+
+          <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.92rem; color: var(--text-muted);">
+            <span>Subtotal</span>
+            <span id="summarySubtotal" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+          </div>
+
+          <div class="summary-line" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.92rem; color: var(--text-muted);">
+            <span>Delivery Fee</span>
+            <span id="summaryDeliveryFee" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+          </div>
+
+          <div id="summaryDiscountLine" class="summary-line" style="display: none; justify-content: space-between; margin-bottom: 8px; font-size: 0.92rem; color: var(--success);">
+            <span id="summaryCouponLabel">Coupon Discount</span>
+            <span id="summaryDiscount" style="font-weight: 700;">- Rs. 0.00</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 800; color: var(--accent); padding-top: 14px; border-top: 1px solid var(--border-light); margin-top: 14px; margin-bottom: 24px;">
+            <span>Total Payable</span>
+            <span id="summaryTotal">Rs. 0.00</span>
+          </div>
+
+          <button type="submit" id="placeOrderBtn" class="btn btn-primary btn-block btn-lg">
+            <span>Confirm & Place Order</span> <i class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <footer class="site-footer"></footer>
+
+  <script src="../main.js"></script>
+  <script>
+    renderNavbar('cart');
+    renderFooter();
+
+    let currentCartData = null;
+    let selectedPaymentMethod = 'COD';
+
+    function selectPayment(method, el) {
+      selectedPaymentMethod = method;
+      document.querySelectorAll('.payment-option').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      el.querySelector('input[type="radio"]').checked = true;
+    }
+
+    async function initCheckout() {
+      const user = getUser();
+      const token = getToken();
+
+      if (!user || !token) {
+        showToast('Please log in to proceed to checkout', 'info');
+        window.location.href = '../login.html';
+        return;
+      }
+
+      // Pre-fill user name
+      document.getElementById('custName').value = user.username || '';
+
+      try {
+        // 1. Load Cart
+        const cartRes = await fetch('/api/orders/cart', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!cartRes.ok) throw new Error('Failed to load cart');
+        const cart = await cartRes.json();
+
+        if (!cart.items || cart.items.length === 0) {
+          showToast('Your cart is empty', 'info');
+          window.location.href = 'cart.html';
+          return;
+        }
+
+        currentCartData = cart;
+
+        // Render summary items
+        const itemsList = document.getElementById('summaryItemsList');
+        itemsList.innerHTML = cart.items.map(i => `
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; padding: 6px 0; border-bottom: 1px dashed #f0eeea;">
+            <span>${i.name} × ${i.quantity}</span>
+            <span style="font-weight: 700; color: var(--accent);">Rs. ${i.total.toFixed(2)}</span>
+          </div>
+        `).join('');
+
+        document.getElementById('summarySubtotal').textContent = `Rs. ${cart.subtotal.toFixed(2)}`;
+        document.getElementById('summaryDeliveryFee').textContent = cart.deliveryFee === 0 ? 'FREE' : `Rs. ${cart.deliveryFee.toFixed(2)}`;
+
+        if (cart.discount > 0) {
+          document.getElementById('summaryDiscountLine').style.display = 'flex';
+          document.getElementById('summaryCouponLabel').textContent = cart.couponCode ? `Coupon (${cart.couponCode})` : 'Discount';
+          document.getElementById('summaryDiscount').textContent = `- Rs. ${cart.discount.toFixed(2)}`;
+        }
+
+        document.getElementById('summaryTotal').textContent = `Rs. ${cart.total.toFixed(2)}`;
+
+        // 2. Load Saved Addresses
+        loadSavedAddresses();
+
+        document.getElementById('checkoutLoading').style.display = 'none';
+        document.getElementById('checkoutForm').style.display = 'block';
+      } catch (err) {
+        console.error('Checkout init error:', err);
+        document.getElementById('checkoutLoading').innerHTML = `
+          <div style="color: var(--error);">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+            <p style="margin-top: 10px;">Failed to initialize checkout. Please return to your cart.</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadSavedAddresses() {
+      const token = getToken();
+      try {
+        const res = await fetch('/api/addresses', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const addresses = await res.json();
+
+        if (addresses && addresses.length > 0) {
+          const section = document.getElementById('savedAddressesSection');
+          const list = document.getElementById('savedAddressesList');
+          section.style.display = 'block';
+
+          list.innerHTML = addresses.map((addr, idx) => `
+            <div class="saved-address-card ${addr.is_default || idx === 0 ? 'selected' : ''}" onclick="useSavedAddress(${JSON.stringify(addr).replace(/"/g, '&quot;')}, this)">
+              <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.9rem; color: var(--accent); margin-bottom: 2px;">
+                <span>🏷️ ${addr.label}</span>
+                ${addr.is_default ? '<span style="color: var(--primary-dark); font-size: 0.75rem;">DEFAULT</span>' : ''}
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-main); margin: 0;">${addr.address}</p>
+              ${addr.phone ? `<small style="color: var(--text-muted);">Phone: ${addr.phone}</small>` : ''}
+            </div>
+          `).join('');
+
+          // Select default
+          const defaultAddr = addresses.find(a => a.is_default) || addresses[0];
+          document.getElementById('deliveryAddress').value = defaultAddr.address;
+          if (defaultAddr.phone) document.getElementById('custPhone').value = defaultAddr.phone;
+          if (defaultAddr.recipient_name) document.getElementById('custName').value = defaultAddr.recipient_name;
+        }
+      } catch (e) {
+        console.error('Error loading addresses:', e);
+      }
+    }
+
+    function useSavedAddress(addr, el) {
+      document.querySelectorAll('.saved-address-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('deliveryAddress').value = addr.address;
+      if (addr.phone) document.getElementById('custPhone').value = addr.phone;
+      if (addr.recipient_name) document.getElementById('custName').value = addr.recipient_name;
+    }
+
+    async function handlePlaceOrder(e) {
+      e.preventDefault();
+
+      const token = getToken();
+      const placeBtn = document.getElementById('placeOrderBtn');
+      const customerName = document.getElementById('custName').value.trim();
+      const contactPhone = document.getElementById('custPhone').value.trim();
+      const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+      const deliveryInstructions = document.getElementById('deliveryInstructions').value.trim();
+      const shouldSaveAddress = document.getElementById('saveAddressCheckbox').checked;
+
+      if (!deliveryAddress || !contactPhone) {
+        showToast('Please provide both address and contact phone number', 'error');
+        return;
+      }
+
+      placeBtn.disabled = true;
+      placeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming Order...';
+
+      try {
+        const res = await fetch('/api/orders/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            customerName,
+            contactPhone,
+            deliveryAddress,
+            deliveryInstructions,
+            paymentMethod: selectedPaymentMethod,
+            couponCode: currentCartData ? currentCartData.couponCode : null
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Optionally save address to profile
+          if (shouldSaveAddress) {
+            fetch('/api/addresses', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                label: 'Home',
+                recipient_name: customerName,
+                phone: contactPhone,
+                address: deliveryAddress
+              })
+            }).catch(() => {});
+          }
+
+          showToast('Order placed successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = `order-confirmation.html?order_id=${data.orderId}`;
+          }, 600);
+        } else {
+          showToast(data.message || 'Failed to place order', 'error');
+          placeBtn.disabled = false;
+          placeBtn.innerHTML = '<span>Confirm & Place Order</span> <i class="fas fa-check"></i>';
+        }
+      } catch (err) {
+        console.error('Checkout error:', err);
+        showToast('Network error while placing order.', 'error');
+        placeBtn.disabled = false;
+        placeBtn.innerHTML = '<span>Confirm & Place Order</span> <i class="fas fa-check"></i>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initCheckout);
+  </script>
+</body>
+</html>

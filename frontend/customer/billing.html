@@ -3,99 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Billing - Chef Deliver</title>
+  <title>Official Order Invoice - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="../css/billing.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Chef Deliver and Track</h1>
-        <p class="admin-subtitle">Order Invoice</p>
+
+  <!-- Dynamic Header -->
+  <header class="site-header"></header>
+
+  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+    <div class="invoice-card" style="margin: 0 auto; max-width: 720px; background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-lg);">
+      <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid var(--border-light); margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+            🍔
+          </div>
+          <div>
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0;">Chef Deliver & Track</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Official Tax Invoice & Receipt</p>
+          </div>
+        </div>
+        <div class="invoice-meta" style="text-align: right;">
+          <p style="margin: 0 0 4px; font-size: 0.88rem; color: var(--text-muted);">Invoice Date: <span id="orderDate" style="font-weight: 600; color: var(--text-main);">Today</span></p>
+          <p style="margin: 0; font-size: 0.88rem;">Status: <span id="orderStatus" class="status-badge">Loading...</span></p>
+        </div>
       </div>
-    </header>
 
-    <main class="dashboard-main">
-      <div class="invoice-card">
-        <div class="invoice-header">
-          <div class="invoice-logo">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm0 2.8L18 10v8h-2v-6H8v6H6v-8l6-4.2z"/>
-            </svg>
+      <div class="invoice-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; background: var(--bg-muted); padding: 16px; border-radius: var(--radius-md); font-size: 0.9rem;">
+          <div>
+            <span style="color: var(--text-muted); display: block;">Order Reference:</span>
+            <strong id="order_id" style="font-size: 1.1rem; color: var(--accent);">#--</strong>
           </div>
-          <div class="invoice-meta">
-            <p>Order Date: <span id="orderDate">Today</span></p>
-            <p>Status: <span id="orderStatus" class="status-badge">Loading...</span></p>
+          <div>
+            <span style="color: var(--text-muted); display: block;">Customer Name:</span>
+            <strong id="customerName">--</strong>
+          </div>
+          <div style="grid-column: 1/-1;">
+            <span style="color: var(--text-muted); display: block;">Delivery Address:</span>
+            <span id="deliveryAddress" style="font-weight: 500;">--</span>
           </div>
         </div>
 
-        <div class="invoice-body">
-          <div class="invoice-section">
-            <h3>Order Summary</h3>
-            <div class="invoice-details">
-              <div class="detail-row">
-                <span>Order ID</span>
-                <span id="order_id" class="highlight">#4</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="invoice-section">
-            <h3>Items Ordered</h3>
-            <div class="items-list" id="itemsContainer">
-              <!-- Items will be loaded here -->
-              <div class="item-row">
-                <span>Loading items...</span>
-                <span>Rs. 0.00</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="invoice-section">
-            <h3>Payment Summary</h3>
-            <div class="payment-details">
-              <div class="detail-row">
-                <span>Subtotal</span>
-                <span id="subtotal">Rs. 0.00</span>
-              </div>
-              <div class="detail-row">
-                <span>Delivery Fee</span>
-                <span id="deliveryFee">Rs. 0.00</span>
-              </div>
-              <div class="detail-row total-row">
-                <span>Total Amount</span>
-                <span id="total">Rs. 0.00</span>
-              </div>
+        <div class="invoice-section" style="margin-bottom: 24px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+            Ordered Items
+          </h3>
+          <div class="items-list" id="itemsContainer">
+            <div class="item-row">
+              <span>Loading items...</span>
+              <span>Rs. 0.00</span>
             </div>
           </div>
         </div>
 
-        <div class="invoice-footer">
-          <p>Thank you for your order! Your food will be delivered shortly.</p>
-          <div class="action-bar">
-            <a href="menu.html" class="btn btn-secondary">
-              ← Back to Menu
-            </a>
-            <button onclick="window.print()" class="btn btn-primary">
-              Print Invoice
-            </button>
-            <button onclick="logout()" class="btn logout-btn">
-              Logout
-            </button>
+        <div class="invoice-section" style="margin-bottom: 24px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+            Payment Breakdown
+          </h3>
+          <div class="payment-details">
+            <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem;">
+              <span>Subtotal</span>
+              <span id="subtotal" style="font-weight: 600;">Rs. 0.00</span>
+            </div>
+            <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem;">
+              <span>Delivery Fee</span>
+              <span id="deliveryFee" style="font-weight: 600;">Rs. 0.00</span>
+            </div>
+            <div id="discountRow" class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; color: var(--success);">
+              <span>Discount</span>
+              <span id="discount" style="font-weight: 700;">- Rs. 0.00</span>
+            </div>
+            <div class="detail-row total-row" style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 2px solid var(--border-light); font-size: 1.25rem; font-weight: 800; color: var(--accent); margin-top: 10px;">
+              <span>Total Paid</span>
+              <span id="total">Rs. 0.00</span>
+            </div>
           </div>
         </div>
       </div>
-    </main>
-  </div>
+
+      <div class="invoice-footer" style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-light);">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Thank you for choosing Chef Deliver! For any questions regarding this receipt, contact us at 1800-CHEF-DEL.
+        </p>
+        <div class="action-bar" style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+          <a href="menu.html" class="btn btn-secondary btn-sm">
+            ← Back to Menu
+          </a>
+          <a id="trackLink" href="#" class="btn btn-secondary btn-sm">
+            <i class="fas fa-truck-fast"></i> Track Order
+          </a>
+          <button onclick="window.print()" class="btn btn-primary btn-sm">
+            <i class="fas fa-print"></i> Print Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer"></footer>
 
   <script src="../main.js"></script>
   <script>
-    protect('user');
+    renderNavbar();
+    renderFooter();
 
     async function loadBillingData() {
       const urlParams = new URLSearchParams(window.location.search);
       const order_id = urlParams.get('order_id');
-      const token = localStorage.getItem('token');
+      const token = getToken();
 
       if (!order_id) {
         alert('No order specified');
@@ -103,9 +121,11 @@
         return;
       }
 
+      document.getElementById('trackLink').href = `track-order.html?order_id=${order_id}`;
+
       try {
         const res = await fetch(`/api/orders/${order_id}/billing`, {
-          headers: { Authorization: token }
+          headers: { Authorization: `Bearer ${token}` }
         });
         
         if (!res.ok) throw new Error('Failed to load billing data');
@@ -115,9 +135,19 @@
         // Update order information
         document.getElementById('order_id').textContent = `#${order_id}`;
         document.getElementById('orderStatus').textContent = `${data.statusEmoji || ''} ${data.status}`;
-        document.getElementById('subtotal').textContent = `Rs. ${data.subtotal}`;
-        document.getElementById('deliveryFee').textContent = `Rs. ${data.deliveryFee}`;
-        document.getElementById('total').textContent = `Rs. ${data.total}`;
+        document.getElementById('customerName').textContent = data.customerName || 'Valued Customer';
+        document.getElementById('deliveryAddress').textContent = data.deliveryAddress || 'Standard Delivery';
+        document.getElementById('subtotal').textContent = `Rs. ${parseFloat(data.subtotal).toFixed(2)}`;
+        document.getElementById('deliveryFee').textContent = parseFloat(data.deliveryFee) === 0 ? 'FREE' : `Rs. ${parseFloat(data.deliveryFee).toFixed(2)}`;
+        
+        if (parseFloat(data.discount) > 0) {
+          document.getElementById('discountRow').style.display = 'flex';
+          document.getElementById('discount').textContent = `- Rs. ${parseFloat(data.discount).toFixed(2)}`;
+        } else {
+          document.getElementById('discountRow').style.display = 'none';
+        }
+
+        document.getElementById('total').textContent = `Rs. ${parseFloat(data.total).toFixed(2)}`;
         
         // Format and display items
         const itemsContainer = document.getElementById('itemsContainer');
@@ -127,9 +157,13 @@
           data.items.forEach(item => {
             const itemRow = document.createElement('div');
             itemRow.className = 'item-row';
+            itemRow.style.display = 'flex';
+            itemRow.style.justifyContent = 'space-between';
+            itemRow.style.padding = '8px 0';
+            itemRow.style.borderBottom = '1px dashed #f5f3ef';
             itemRow.innerHTML = `
-              <span>${item.name} ×${item.quantity}</span>
-              <span>Rs. ${item.total.toFixed(2)}</span>
+              <span>${item.emoji || '🍽️'} <strong>${item.name}</strong> × ${item.quantity}</span>
+              <span style="font-weight: 700; color: var(--accent);">Rs. ${parseFloat(item.total).toFixed(2)}</span>
             `;
             itemsContainer.appendChild(itemRow);
           });
@@ -137,9 +171,9 @@
           itemsContainer.innerHTML = '<div class="item-row"><span>No items in this order</span><span>Rs. 0.00</span></div>';
         }
         
-        // Set current date
-        const today = new Date();
-        document.getElementById('orderDate').textContent = today.toLocaleDateString('en-US', {
+        // Set date
+        const dateObj = data.orderDate ? new Date(data.orderDate) : new Date();
+        document.getElementById('orderDate').textContent = dateObj.toLocaleDateString('en-US', {
           year: 'numeric', 
           month: 'long', 
           day: 'numeric',
@@ -150,8 +184,6 @@
       } catch (error) {
         console.error('Billing error:', error);
         alert('Failed to load billing information');
-        document.getElementById('itemsContainer').innerHTML = 
-          '<div class="item-row"><span>Error loading items</span><span>Rs. 0.00</span></div>';
       }
     }
 

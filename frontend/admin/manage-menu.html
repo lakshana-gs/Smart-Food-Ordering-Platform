@@ -2,107 +2,526 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Manage Menu - Admin</title>
-  <link rel="stylesheet" href="../css/Pages.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Menu - Admin - Chef Deliver & Track</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .admin-nav-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    .admin-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+    .admin-nav-btn:hover {
+      background: var(--bg-muted);
+      color: var(--primary-dark);
+    }
+    .admin-nav-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .admin-table th {
+      background: var(--bg-muted);
+      padding: 14px 16px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+    .admin-table tr:hover td {
+      background: #faf8f5;
+    }
+  </style>
 </head>
-<body class="admin-dashboard">
-  <div class="admin-container">
-    <header class="admin-header">
-      <div class="header-content">
-        <h1>Welcome To Chef Deliver and Track by Abdulrehman - Admin</h1>
-        <p class="admin-subtitle">Menu Management</p>
-      </div>
-    </header>
+<body style="background: #f8fafc; min-height: 100vh;">
 
-    <div class="dashboard-main">
-      <div class="form-card slide-in">
-        <form id="menuForm" class="starling-form">
-          <h3><i class="fas fa-plus-circle"></i> Add New Item</h3>
-          <div class="form-group">
-            <label for="name"><i class="fas fa-utensils"></i> Item Name</label>
-            <input type="text" id="name" placeholder="Enter item name" required>
-          </div>
-          <div class="form-group">
-            <label for="price"><i class="fas fa-rupee-sign"></i> Price</label>
-            <input type="number" id="price" placeholder="Enter price" required>
-          </div>
-          <div class="form-group">
-            <label for="emoji"><i class="fas fa-smile"></i> Emoji</label>
-            <input type="text" id="emoji" placeholder="Optional emoji">
-          </div>
-          <button type="submit" class="glow">
-            <i class="fas fa-plus"></i> Add Item
-          </button>
-        </form>
-
-        <div class="menu-list-container">
-          <h3><i class="fas fa-list"></i> Current Menu</h3>
-          <ul id="menuList" class="starling-list"></ul>
+  <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f59e0b, #d97706); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
+          🍔
         </div>
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Menu Management</h1>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Create, edit, price, and toggle availability of store dishes</p>
+        </div>
+      </div>
 
-        <a href="dashboard.html" class="back-link float"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button onclick="openAddModal()" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus"></i> Add New Dish
+        </button>
+        <a href="../customer/menu.html" class="btn btn-secondary btn-sm" target="_blank">
+          <i class="fas fa-eye"></i> View Menu Storefront
+        </a>
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
       </div>
     </div>
 
-    <footer class="admin-footer">
-      <button onclick="logout()" class="logout-btn glow">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </footer>
+    <!-- Admin Subnavigation Bar -->
+    <nav class="admin-nav-bar">
+      <a href="dashboard.html" class="admin-nav-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="orders.html" class="admin-nav-btn"><i class="fas fa-receipt"></i> Orders & Delivery</a>
+      <a href="manage-menu.html" class="admin-nav-btn active"><i class="fas fa-utensils"></i> Menu Items</a>
+      <a href="users.html" class="admin-nav-btn"><i class="fas fa-users"></i> Users & Roles</a>
+      <a href="coupons.html" class="admin-nav-btn"><i class="fas fa-tags"></i> Coupons & Promos</a>
+    </nav>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card" style="padding: 16px 20px; margin-bottom: 24px;">
+      <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex: 1; max-width: 600px;">
+          <div style="position: relative; flex: 1; min-width: 200px;">
+            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" id="searchInput" placeholder="Search dish name or category..." class="form-input" style="padding-left: 38px;" oninput="filterMenu()">
+          </div>
+
+          <select id="categoryFilter" class="form-input" style="width: auto; min-width: 150px;" onchange="filterMenu()">
+            <option value="All">All Categories</option>
+            <option value="Burgers">Burgers</option>
+            <option value="Pizzas">Pizzas</option>
+            <option value="Sandwiches">Sandwiches</option>
+            <option value="Sides">Sides</option>
+            <option value="South Indian">South Indian</option>
+            <option value="Biryani & Mains">Biryani & Mains</option>
+            <option value="Wraps">Wraps</option>
+            <option value="Desserts">Desserts</option>
+            <option value="Beverages">Beverages</option>
+          </select>
+
+          <select id="dietaryFilter" class="form-input" style="width: auto; min-width: 130px;" onchange="filterMenu()">
+            <option value="All">All Diets</option>
+            <option value="Veg">Pure Veg</option>
+            <option value="Non-Veg">Non-Veg</option>
+          </select>
+
+          <select id="availabilityFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="filterMenu()">
+            <option value="All">All Status</option>
+            <option value="1">Available Only</option>
+            <option value="0">Out of Stock</option>
+          </select>
+        </div>
+
+        <div id="dishCountBadge" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">
+          Loading dishes...
+        </div>
+      </div>
+    </div>
+
+    <!-- Dishes Table Container -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">ID</th>
+              <th>Dish Details</th>
+              <th>Category</th>
+              <th>Diet</th>
+              <th>Price</th>
+              <th>Prep Time</th>
+              <th>Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="menuTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p style="margin-top: 10px;">Loading menu items from database...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Dish Modal -->
+  <div id="dishModal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3 id="modalTitle" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent);">
+          Add New Dish
+        </h3>
+        <button onclick="closeModal()" class="modal-close">&times;</button>
+      </div>
+
+      <form id="dishForm" onsubmit="handleDishSubmit(event)">
+        <input type="hidden" id="dishId">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label class="form-label" for="dishName">Dish Name *</label>
+            <input type="text" id="dishName" class="form-input" placeholder="e.g. Gourmet Truffle Burger" required>
+          </div>
+          <div>
+            <label class="form-label" for="dishEmoji">Emoji Icon</label>
+            <input type="text" id="dishEmoji" class="form-input" placeholder="🍔" maxlength="8">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label class="form-label" for="dishPrice">Price (Rs.) *</label>
+            <input type="number" id="dishPrice" class="form-input" placeholder="249.00" step="0.5" min="1" required>
+          </div>
+          <div>
+            <label class="form-label" for="dishCategory">Category *</label>
+            <select id="dishCategory" class="form-input" required>
+              <option value="Burgers">Burgers</option>
+              <option value="Pizzas">Pizzas</option>
+              <option value="Sandwiches">Sandwiches</option>
+              <option value="Sides">Sides</option>
+              <option value="South Indian">South Indian</option>
+              <option value="Biryani & Mains">Biryani & Mains</option>
+              <option value="Wraps">Wraps</option>
+              <option value="Desserts">Desserts</option>
+              <option value="Beverages">Beverages</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div>
+            <label class="form-label">Dietary Type *</label>
+            <div style="display: flex; gap: 16px; margin-top: 8px;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="radio" name="dishDietary" value="Veg" checked>
+                <span class="badge badge-veg" style="font-size: 0.8rem;">🌱 Veg</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="radio" name="dishDietary" value="Non-Veg">
+                <span class="badge badge-nonveg" style="font-size: 0.8rem;">🍖 Non-Veg</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="form-label" for="dishPrep">Est. Prep Time (mins)</label>
+            <input type="number" id="dishPrep" class="form-input" value="20" min="1" max="120">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label class="form-label" for="dishDesc">Description</label>
+          <textarea id="dishDesc" class="form-input" rows="3" placeholder="Crisp lettuce, melted cheddar, house sauce..."></textarea>
+        </div>
+
+        <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" id="dishAvailable" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+          <label for="dishAvailable" style="cursor: pointer; font-weight: 600; font-size: 0.92rem; color: var(--accent);">
+            Available for customer orders immediately
+          </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="saveDishBtn" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save Dish
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../main.js"></script>
   <script>
-    // Your existing JavaScript remains unchanged
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: token
-    };
+    protect('admin');
+
+    let allDishes = [];
 
     async function loadMenu() {
-      const res = await fetch('/api/menu');
-      const items = await res.json();
-      const list = items.map(item =>
-        `<li class="fade-in">
-          <span class="item-name">${item.name} ${item.emoji || ''}</span>
-          <span class="item-price"> Rs. ${item.price}</span>
-          <button onclick="deleteItem(${item.id})" class="delete-btn">
-            <i class="fas fa-trash"></i>
-          </button>
-        </li>`
-      ).join('');
-      document.getElementById('menuList').innerHTML = list;
+      try {
+        const res = await fetch('/api/menu');
+        if (!res.ok) throw new Error('Failed to load menu items');
+        allDishes = await res.json();
+        filterMenu();
+      } catch (err) {
+        console.error('Menu load error:', err);
+        document.getElementById('menuTableBody').innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--error);">
+              <i class="fas fa-exclamation-triangle fa-2x"></i>
+              <p style="margin-top: 10px;">${err.message}</p>
+              <button onclick="loadMenu()" class="btn btn-sm btn-outline-primary" style="margin-top: 8px;">Retry</button>
+            </td>
+          </tr>
+        `;
+      }
     }
 
-    async function deleteItem(id) {
-      if (!confirm('Are you sure you want to delete this item?')) return;
+    function filterMenu() {
+      const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      const cat = document.getElementById('categoryFilter').value;
+      const diet = document.getElementById('dietaryFilter').value;
+      const avail = document.getElementById('availabilityFilter').value;
 
-      await fetch(`/api/menu/${id}`, {
-        method: 'DELETE',
-        headers
+      const filtered = allDishes.filter(item => {
+        const matchesSearch = !search || 
+          (item.name && item.name.toLowerCase().includes(search)) ||
+          (item.category && item.category.toLowerCase().includes(search)) ||
+          (item.description && item.description.toLowerCase().includes(search));
+
+        const matchesCat = cat === 'All' || item.category === cat;
+        const matchesDiet = diet === 'All' || item.dietary === diet;
+        const matchesAvail = avail === 'All' || String(item.is_available) === avail;
+
+        return matchesSearch && matchesCat && matchesDiet && matchesAvail;
       });
-      loadMenu();
+
+      renderMenuTable(filtered);
     }
 
-    document.getElementById('menuForm').addEventListener('submit', async (e) => {
+    function renderMenuTable(items) {
+      const tbody = document.getElementById('menuTableBody');
+      const badge = document.getElementById('dishCountBadge');
+
+      badge.textContent = `Showing ${items.length} of ${allDishes.length} dishes`;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <p style="font-size: 1.1rem; margin: 0;">No dishes match your filter criteria.</p>
+              <button onclick="clearFilters()" class="btn btn-sm btn-secondary" style="margin-top: 10px;">Reset Filters</button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = items.map(d => {
+        const isVeg = d.dietary === 'Veg';
+        const dietHtml = isVeg 
+          ? `<span class="badge badge-veg"><span class="badge-dot badge-dot-veg"></span> Veg</span>`
+          : `<span class="badge badge-nonveg"><span class="badge-dot badge-dot-nonveg"></span> Non-Veg</span>`;
+
+        const isAvail = d.is_available === 1 || d.is_available === true;
+        const availBadge = isAvail
+          ? `<span style="background: #ecfdf5; color: #065f46; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-check-circle"></i> Available</span>`
+          : `<span style="background: #fef2f2; color: #991b1b; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-times-circle"></i> Sold Out</span>`;
+
+        const toggleBtnText = isAvail ? 'Mark Sold Out' : 'Mark Available';
+        const toggleBtnClass = isAvail ? 'btn-outline-warning' : 'btn-outline-success';
+
+        return `
+          <tr>
+            <td style="color: var(--text-muted); font-weight: 700;">#${d.id}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: var(--radius-sm); background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+                  ${d.emoji || '🍽️'}
+                </div>
+                <div>
+                  <div style="font-weight: 700; color: var(--accent);">${escapeHtml(d.name)}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${escapeHtml(d.description || 'No description provided')}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span style="background: #f1f5f9; color: #475569; font-size: 0.8rem; font-weight: 600; padding: 3px 8px; border-radius: 4px;">
+                ${escapeHtml(d.category || 'General')}
+              </span>
+            </td>
+            <td>${dietHtml}</td>
+            <td style="font-weight: 700; color: var(--primary-dark);">Rs. ${parseFloat(d.price).toFixed(2)}</td>
+            <td style="color: var(--text-muted); font-size: 0.85rem;">
+              <i class="far fa-clock"></i> ${d.prep_minutes || 20}m
+            </td>
+            <td>${availBadge}</td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px;">
+                <button onclick="openEditModal(${d.id})" class="btn btn-sm btn-secondary" title="Edit dish details">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="toggleAvailability(${d.id}, ${isAvail ? 0 : 1})" class="btn btn-sm ${toggleBtnClass}" title="${toggleBtnText}">
+                  <i class="fas ${isAvail ? 'fa-ban' : 'fa-check'}"></i>
+                </button>
+                <button onclick="deleteDish(${d.id}, '${escapeHtml(d.name)}')" class="btn btn-sm btn-outline-danger" title="Delete or deactivate dish">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = 'All';
+      document.getElementById('dietaryFilter').value = 'All';
+      document.getElementById('availabilityFilter').value = 'All';
+      filterMenu();
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Dish';
+      document.getElementById('dishId').value = '';
+      document.getElementById('dishName').value = '';
+      document.getElementById('dishEmoji').value = '🍽️';
+      document.getElementById('dishPrice').value = '';
+      document.getElementById('dishCategory').value = 'Burgers';
+      document.querySelector('input[name="dishDietary"][value="Veg"]').checked = true;
+      document.getElementById('dishPrep').value = '20';
+      document.getElementById('dishDesc').value = '';
+      document.getElementById('dishAvailable').checked = true;
+      document.getElementById('dishModal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const dish = allDishes.find(d => d.id === id);
+      if (!dish) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Dish #' + id;
+      document.getElementById('dishId').value = dish.id;
+      document.getElementById('dishName').value = dish.name;
+      document.getElementById('dishEmoji').value = dish.emoji || '🍽️';
+      document.getElementById('dishPrice').value = dish.price;
+      document.getElementById('dishCategory').value = dish.category || 'Other';
+      
+      const dietaryRadio = document.querySelector(`input[name="dishDietary"][value="${dish.dietary || 'Veg'}"]`);
+      if (dietaryRadio) dietaryRadio.checked = true;
+
+      document.getElementById('dishPrep').value = dish.prep_minutes || 20;
+      document.getElementById('dishDesc').value = dish.description || '';
+      document.getElementById('dishAvailable').checked = dish.is_available === 1 || dish.is_available === true;
+
+      document.getElementById('dishModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('dishModal').classList.remove('active');
+    }
+
+    async function handleDishSubmit(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const price = document.getElementById('price').value;
-      const emoji = document.getElementById('emoji').value;
+      const id = document.getElementById('dishId').value;
+      const isEditing = !!id;
 
-      await fetch('/api/menu', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ name, price, emoji })
-      });
+      const payload = {
+        name: document.getElementById('dishName').value.trim(),
+        price: parseFloat(document.getElementById('dishPrice').value),
+        emoji: document.getElementById('dishEmoji').value.trim() || '🍽️',
+        category: document.getElementById('dishCategory').value,
+        dietary: document.querySelector('input[name="dishDietary"]:checked').value,
+        prep_minutes: parseInt(document.getElementById('dishPrep').value, 10) || 20,
+        description: document.getElementById('dishDesc').value.trim(),
+        is_available: document.getElementById('dishAvailable').checked ? 1 : 0
+      };
 
-      e.target.reset();
-      loadMenu();
-    });
+      const btn = document.getElementById('saveDishBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    protect('admin');
+      try {
+        const url = isEditing ? `/api/menu/${id}` : '/api/menu';
+        const method = isEditing ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to save dish');
+
+        showToast(isEditing ? 'Dish updated successfully!' : 'Dish added successfully!', 'success');
+        closeModal();
+        loadMenu();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Dish';
+      }
+    }
+
+    async function toggleAvailability(id, targetAvail) {
+      try {
+        const res = await fetch(`/api/menu/${id}/availability`, {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ is_available: targetAvail })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update availability');
+
+        showToast(data.message, 'success');
+        loadMenu();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function deleteDish(id, name) {
+      if (!confirm(`Are you sure you want to delete "${name}"? If it has past orders, it will be marked as Sold Out to preserve audit history.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/menu/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to delete dish');
+
+        showToast(data.message, 'info');
+        loadMenu();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     loadMenu();
   </script>
 </body>
