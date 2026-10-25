@@ -1,4 +1,13 @@
 {
+  "name": "bitefleet",
+  "version": "1.0.0",
+  "description": "BiteFleet - Full-stack on-demand food ordering & delivery platform",
+  "author": "Lakshana G S",
+  "license": "MIT",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "node backend/test.js"
+  },
   "dependencies": {
     "dotenv": "^16.5.0"
   }

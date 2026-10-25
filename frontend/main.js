@@ -1,4 +1,4 @@
-// Common utilities, auth helpers, navigation, and toast system for Chef Deliver & Track
+// Common utilities, auth helpers, navigation, and toast system for BiteFleet
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -188,8 +188,8 @@ function renderNavbar(activePage = '') {
     <div class="container">
       <nav class="nav-wrap">
         <a href="${rootPrefix}index.html" class="nav-brand">
-          <div class="nav-brand-logo">🍔</div>
-          <span>Chef Deliver</span>
+          <div class="nav-brand-logo">⚡</div>
+          <span>BiteFleet</span>
         </a>
 
         <ul class="nav-links">
@@ -283,12 +283,12 @@ function renderFooter() {
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <h4>🍔 Chef Deliver & Track</h4>
+          <h4>⚡ BiteFleet</h4>
           <p style="color: #a8a29e; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
-            Fresh gourmet meals crafted with love and delivered hot to your doorstep. Real-time kitchen tracking and guaranteed deliciousness.
+            Fresh gourmet meals crafted with love and delivered hot at lightning speed. Real-time kitchen tracking and guaranteed deliciousness.
           </p>
           <div style="display: flex; gap: 12px; font-size: 1.2rem; color: #f59e0b;">
-            <span>⭐ 4.9 Food Rating</span> • <span>🚀 Fast Delivery</span>
+            <span>⭐ 4.9 Food Rating</span> • <span>🚀 Lightning Fast Delivery</span>
           </div>
         </div>
 
@@ -323,13 +323,13 @@ function renderFooter() {
               <li><a href="${rootPrefix}login.html">Sign In</a></li>
               <li><a href="${rootPrefix}signup.html">Create Account</a></li>
             `}
-            <li><span style="color: #78716c; font-size: 0.85rem;">📞 Support: 1800-CHEF-DEL</span></li>
+            <li><span style="color: #78716c; font-size: 0.85rem;">📞 Support: 1800-BITE-FLEET</span></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p>© ${new Date().getFullYear()} Chef Deliver and Track. All rights reserved. Database-backed & verified full-stack food delivery system.</p>
+        <p>© ${new Date().getFullYear()} BiteFleet by Lakshana G S. All rights reserved. Database-backed & verified full-stack food delivery system.</p>
       </div>
     </div>
   `;

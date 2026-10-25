@@ -1,4 +1,4 @@
-# 🍔 Smart Food Ordering Platform
+# ⚡ BiteFleet — Smart Food Ordering & Delivery Platform
 
 > **A Complete Full-Stack Database-Driven Food Ordering & Delivery Management System**
 
