@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up - BiteFleet</title>
+  <title>Sign Up — BiteFleet</title>
+  <meta name="description" content="Create your BiteFleet account to order fresh gourmet food and track deliveries.">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -11,34 +12,23 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fed7aa 100%);
+      background: var(--bg-page);
     }
     .auth-card-wrap {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 32px 20px;
+      padding: 32px 18px;
     }
     .auth-card {
       background: white;
-      border-radius: var(--radius-lg);
-      padding: 40px;
-      max-width: 460px;
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      max-width: 420px;
       width: 100%;
-      box-shadow: var(--shadow-xl);
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-light);
-    }
-    .form-group {
-      margin-bottom: 18px;
-      position: relative;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-bottom: 6px;
     }
     .input-with-icon {
       position: relative;
@@ -47,31 +37,35 @@
     }
     .input-with-icon i.input-icon {
       position: absolute;
-      left: 14px;
+      left: 12px;
       color: var(--text-light);
+      font-size: 0.85rem;
     }
     .input-with-icon input {
       width: 100%;
-      padding: 12px 40px 12px 40px;
+      padding: 8px 36px 8px 34px;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      font-size: 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
       outline: none;
       transition: all var(--transition-fast);
     }
     .input-with-icon input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
     }
     .pwd-toggle-btn {
       position: absolute;
-      right: 12px;
+      right: 10px;
       background: none;
       border: none;
       color: var(--text-light);
       cursor: pointer;
       padding: 4px;
-      font-size: 1rem;
+      font-size: 0.85rem;
+    }
+    .pwd-toggle-btn:hover {
+      color: var(--text-primary);
     }
   </style>
 </head>
@@ -82,28 +76,28 @@
 
   <div class="auth-card-wrap">
     <div class="auth-card">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <div style="width: 56px; height: 56px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 12px; box-shadow: var(--shadow-md);">
-          🚀
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; margin: 0 auto 10px;">
+          <i class="fas fa-bolt"></i>
         </div>
-        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-bottom: 6px;">Create Your Account</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Join thousands of foodies enjoying fresh, doorstep delivery.</p>
+        <h1 style="font-size: 1.35rem; font-weight: 800; color: var(--accent-dark); margin-bottom: 4px;">Create an Account</h1>
+        <p style="color: var(--text-muted); font-size: 0.82rem;">Join BiteFleet for fresh meals delivered hot at your doorstep.</p>
       </div>
 
-      <div id="errorBox" style="display: none; background: var(--nonveg-bg); border-left: 4px solid var(--error); color: var(--error); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; margin-bottom: 18px;"></div>
-      <div id="successBox" style="display: none; background: var(--veg-bg); border-left: 4px solid var(--success); color: var(--success); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; margin-bottom: 18px;"></div>
+      <div id="errorBox" style="display: none; background: var(--error-bg); border-left: 3px solid var(--error); color: var(--error); padding: 8px 12px; border-radius: var(--radius-xs); font-size: 0.82rem; margin-bottom: 16px;"></div>
+      <div id="successBox" style="display: none; background: var(--success-bg); border-left: 3px solid var(--success); color: var(--success); padding: 8px 12px; border-radius: var(--radius-xs); font-size: 0.82rem; margin-bottom: 16px;"></div>
 
       <form id="signupForm">
         <div class="form-group">
-          <label for="username">Your Full Name / Username</label>
+          <label for="username" class="form-label">Full Name / Username</label>
           <div class="input-with-icon">
             <i class="fas fa-user input-icon"></i>
-            <input type="text" id="username" placeholder="e.g. John Doe" required minlength="3" autocomplete="name">
+            <input type="text" id="username" placeholder="Full name or nickname" required minlength="3" autocomplete="name">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="email">Email Address</label>
+          <label for="email" class="form-label">Email Address</label>
           <div class="input-with-icon">
             <i class="fas fa-envelope input-icon"></i>
             <input type="email" id="email" placeholder="name@example.com" required autocomplete="email">
@@ -111,7 +105,7 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password" class="form-label">Password</label>
           <div class="input-with-icon">
             <i class="fas fa-lock input-icon"></i>
             <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
@@ -121,14 +115,14 @@
           </div>
         </div>
 
-        <button type="submit" id="signupBtn" class="btn btn-primary btn-block" style="padding: 12px; font-size: 1rem; margin-top: 10px;">
+        <button type="submit" id="signupBtn" class="btn btn-primary btn-block" style="margin-top: 10px;">
           <span>Create Account</span> <i class="fas fa-user-plus"></i>
         </button>
       </form>
 
-      <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-light); font-size: 0.92rem; color: var(--text-muted);">
+      <div style="text-align: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 0.84rem; color: var(--text-muted);">
         Already have an account? 
-        <a href="login.html" style="font-weight: 700; color: var(--primary-dark); text-decoration: none;">Log in</a>
+        <a href="login.html" style="font-weight: 700; color: var(--primary); text-decoration: none;">Sign in</a>
       </div>
     </div>
   </div>
@@ -162,23 +156,10 @@
       const errorBox = document.getElementById('errorBox');
       const successBox = document.getElementById('successBox');
 
-      errorBox.style.display = 'none';
-      successBox.style.display = 'none';
-
-      if (username.length < 3) {
-        errorBox.textContent = 'Username must be at least 3 characters.';
-        errorBox.style.display = 'block';
-        return;
-      }
-
-      if (password.length < 6) {
-        errorBox.textContent = 'Password must be at least 6 characters.';
-        errorBox.style.display = 'block';
-        return;
-      }
-
       signupBtn.disabled = true;
       signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+      errorBox.style.display = 'none';
+      successBox.style.display = 'none';
 
       try {
         const res = await fetch('/api/auth/signup', {
@@ -191,13 +172,13 @@
 
         if (res.ok) {
           localStorage.setItem('token', data.token);
-          successBox.textContent = 'Account created successfully! Taking you to the menu...';
+          successBox.textContent = 'Account created successfully! Redirecting...';
           successBox.style.display = 'block';
           showToast('Welcome to BiteFleet!', 'success');
 
           setTimeout(() => {
             window.location.href = 'customer/menu.html';
-          }, 1000);
+          }, 800);
         } else {
           errorBox.textContent = data.message || 'Signup failed. Please try again.';
           errorBox.style.display = 'block';

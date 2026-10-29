@@ -60,16 +60,88 @@
     .admin-table tr:hover td {
       background: #faf8f5;
     }
+    .admin-toolbar {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-xs);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .admin-toolbar-left {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      flex: 1;
+    }
+    .search-input-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .search-input-wrap i {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    .form-input, .form-select {
+      height: 40px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      border: 1px solid #d6d3d1;
+      border-radius: 8px;
+      background: white;
+      color: #1c1917;
+      outline: none;
+      transition: all var(--transition-fast);
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .search-input-wrap .form-input {
+      padding-left: 36px;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    }
+    .form-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2378716c'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .admin-count-badge {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #57534e;
+      background: #f5f5f4;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      border: 1px solid #e7e5e4;
+      white-space: nowrap;
+    }
   </style>
 </head>
-<body style="background: #f8fafc; min-height: 100vh;">
+<body class="admin-body">
 
   <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
     <!-- Top Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #f59e0b, #d97706); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
-          🍔
+        <div class="admin-brand-icon" aria-hidden="true">
+          <i class="fas fa-utensils"></i>
         </div>
         <div>
           <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Menu Management</h1>
@@ -100,43 +172,41 @@
     </nav>
 
     <!-- Filter & Search Toolbar -->
-    <div class="card" style="padding: 16px 20px; margin-bottom: 24px;">
-      <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex: 1; max-width: 600px;">
-          <div style="position: relative; flex: 1; min-width: 200px;">
-            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" id="searchInput" placeholder="Search dish name or category..." class="form-input" style="padding-left: 38px;" oninput="filterMenu()">
-          </div>
-
-          <select id="categoryFilter" class="form-input" style="width: auto; min-width: 150px;" onchange="filterMenu()">
-            <option value="All">All Categories</option>
-            <option value="Burgers">Burgers</option>
-            <option value="Pizzas">Pizzas</option>
-            <option value="Sandwiches">Sandwiches</option>
-            <option value="Sides">Sides</option>
-            <option value="South Indian">South Indian</option>
-            <option value="Biryani & Mains">Biryani & Mains</option>
-            <option value="Wraps">Wraps</option>
-            <option value="Desserts">Desserts</option>
-            <option value="Beverages">Beverages</option>
-          </select>
-
-          <select id="dietaryFilter" class="form-input" style="width: auto; min-width: 130px;" onchange="filterMenu()">
-            <option value="All">All Diets</option>
-            <option value="Veg">Pure Veg</option>
-            <option value="Non-Veg">Non-Veg</option>
-          </select>
-
-          <select id="availabilityFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="filterMenu()">
-            <option value="All">All Status</option>
-            <option value="1">Available Only</option>
-            <option value="0">Out of Stock</option>
-          </select>
+    <div class="admin-toolbar">
+      <div class="admin-toolbar-left">
+        <div class="search-input-wrap" style="flex: 1; min-width: 200px; max-width: 280px;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search dish or category..." class="form-input" oninput="filterMenu()">
         </div>
 
-        <div id="dishCountBadge" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">
-          Loading dishes...
-        </div>
+        <select id="categoryFilter" class="form-select" style="width: auto; min-width: 140px;" onchange="filterMenu()">
+          <option value="All">All Categories</option>
+          <option value="Burgers">Burgers</option>
+          <option value="Pizzas">Pizzas</option>
+          <option value="Sandwiches">Sandwiches</option>
+          <option value="Sides">Sides</option>
+          <option value="South Indian">South Indian</option>
+          <option value="Biryani & Mains">Biryani & Mains</option>
+          <option value="Wraps">Wraps</option>
+          <option value="Desserts">Desserts</option>
+          <option value="Beverages">Beverages</option>
+        </select>
+
+        <select id="dietaryFilter" class="form-select" style="width: auto; min-width: 120px;" onchange="filterMenu()">
+          <option value="All">All Diets</option>
+          <option value="Veg">Pure Veg</option>
+          <option value="Non-Veg">Non-Veg</option>
+        </select>
+
+        <select id="availabilityFilter" class="form-select" style="width: auto; min-width: 130px;" onchange="filterMenu()">
+          <option value="All">All Status</option>
+          <option value="1">Available Only</option>
+          <option value="0">Out of Stock</option>
+        </select>
+      </div>
+
+      <div id="dishCountBadge" class="admin-count-badge">
+        Loading dishes...
       </div>
     </div>
 

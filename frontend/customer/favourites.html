@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Saved Favourites - BiteFleet</title>
+  <title>Your Saved Dishes — BiteFleet</title>
+  <meta name="description" content="View your saved favourite meals and quickly add them to your cart on BiteFleet.">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,28 +13,39 @@
   <!-- Dynamic Header -->
   <header class="site-header"></header>
 
-  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+  <main class="container" style="padding-top: 24px; padding-bottom: 70px;">
+    <!-- Info notification banner linking to Menu > Favourites -->
+    <div style="background: var(--primary-subtle); border: 1px solid var(--primary-border); padding: 8px 14px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <span style="color: var(--accent-dark); font-weight: 500;">
+        <i class="fas fa-heart" style="color: #dc2626; margin-right: 4px;"></i>
+        Tip: You can now access your Favourites directly inside the <strong>Food Menu</strong> tab!
+      </span>
+      <a href="menu.html?tab=favourites" class="btn btn-secondary btn-sm" style="padding: 3px 10px; font-size: 0.76rem;">
+        Open in Menu <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
     <!-- Page Header -->
-    <div style="margin-bottom: 28px;">
-      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">
-        <i class="fas fa-heart" style="color: var(--nonveg-color);"></i> Your Saved Dishes
+    <div style="margin-bottom: 20px;">
+      <h1 class="page-title">
+        <i class="fas fa-heart" style="color: #dc2626; font-size: 1.25rem;"></i> Saved Dishes
       </h1>
-      <p style="color: var(--text-muted); font-size: 1rem;">Dishes you've saved for quick and easy ordering anytime.</p>
+      <p class="page-subtitle">Dishes you've saved for quick and easy ordering anytime.</p>
     </div>
 
     <!-- Loading State -->
-    <div id="favLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+    <div id="favLoading" style="text-align: center; padding: 50px 0; color: var(--text-muted); font-size: 0.88rem;">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
-      <p style="margin-top: 12px;">Loading your saved favourites...</p>
+      <p style="margin-top: 10px;">Loading your saved favourites...</p>
     </div>
 
     <!-- Empty State -->
     <div id="favEmpty" class="empty-state" style="display: none;">
-      <div class="empty-state-icon">❤️</div>
-      <h2 class="empty-state-title">No Saved Dishes Yet</h2>
-      <p class="empty-state-desc">You can save your favourite dishes by clicking the heart icon on any dish card while browsing the menu.</p>
-      <a href="menu.html" class="btn btn-primary">
-        <i class="fas fa-utensils"></i> Browse Menu
+      <div class="empty-state-icon"><i class="far fa-heart"></i></div>
+      <h3 class="empty-state-title">No Saved Dishes Yet</h3>
+      <p class="empty-state-desc">You can save your favourite dishes by tapping the heart icon on any dish card while browsing the menu.</p>
+      <a href="menu.html" class="btn btn-primary btn-sm">
+        <i class="fas fa-utensils"></i> Browse Food Menu
       </a>
     </div>
 
@@ -45,7 +57,7 @@
 
   <script src="../main.js"></script>
   <script>
-    renderNavbar('favourites');
+    renderNavbar('menu');
     renderFooter();
 
     async function loadFavourites() {
@@ -79,12 +91,17 @@
           const isVeg = (item.dietary || '').toLowerCase() === 'veg';
           const price = parseFloat(item.price).toFixed(2);
           const isAvailable = Boolean(item.is_available);
+          const imgSrc = getFoodImage(item);
 
           return `
             <div class="food-card" data-id="${item.id}">
               <div class="food-card-media">
-                <span class="food-card-emoji">${item.emoji || '🍽️'}</span>
-                <span class="food-card-prep"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
+                <img src="${imgSrc}" alt="${item.name}" class="food-card-img" loading="lazy" onerror="handleImageError(this, '${item.category}')">
+                <div class="food-card-overlay-top">
+                  <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}"></span>
+                  <span class="rating-badge"><i class="fas fa-star"></i> ${item.rating || '4.5'}</span>
+                </div>
+                <span class="food-card-prep-badge"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
                 ${!isAvailable ? '<span class="sold-out-badge">Sold Out</span>' : ''}
                 <button class="favourite-btn active" onclick="removeFromFav(${item.id})" title="Remove from Favourites">
                   <i class="fas fa-heart" style="color: #dc2626;"></i>
@@ -92,19 +109,14 @@
               </div>
 
               <div class="food-card-body">
-                <div class="food-card-header">
-                  <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}"></span>
-                  <span class="rating-badge">★ ${item.rating || '4.5'}</span>
-                </div>
-
                 <h3 class="food-card-title">${item.name}</h3>
                 <p class="food-card-desc">${item.description || 'Fresh gourmet meal prepared by our expert kitchen staff.'}</p>
 
                 <div class="food-card-footer">
-                  <div class="food-price">Rs. ${price}</div>
+                  <div class="food-price">₹${price}</div>
                   ${isAvailable ? `
-                    <button class="add-btn" onclick="addToCartApi(${item.id})">
-                      <i class="fas fa-plus"></i> Add to Cart
+                    <button class="add-btn" onclick="addToCartApi(${item.id}, 1)">
+                      <i class="fas fa-plus"></i> ADD
                     </button>
                   ` : `
                     <button class="btn btn-secondary btn-sm" disabled>Sold Out</button>
@@ -118,8 +130,7 @@
         console.error('Favourites error:', err);
         document.getElementById('favLoading').innerHTML = `
           <div style="color: var(--error);">
-            <i class="fas fa-exclamation-circle fa-2x"></i>
-            <p style="margin-top: 10px;">Failed to load favourites. Please try again.</p>
+            <p>Failed to load favourites. Please try again.</p>
           </div>
         `;
       }

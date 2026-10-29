@@ -210,6 +210,36 @@ router.patch('/:id/status', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// ==================== Toggle/Update User Role (Admin Only) ====================
+router.patch('/:id/role', requireAuth, requireAdmin, async (req, res) => {
+  const targetId = Number(req.params.id);
+  const { role } = req.body;
+
+  if (!['admin', 'user'].includes(role)) {
+    return res.status(400).json({ message: 'Role must be "admin" or "user".' });
+  }
+
+  if (targetId === req.user.id && role !== 'admin') {
+    return res.status(400).json({ message: 'You cannot demote your own admin account.' });
+  }
+
+  try {
+    const [result] = await db.query(
+      'UPDATE users SET role = ? WHERE user_id = ?',
+      [role, targetId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: `User role successfully updated to ${role}.` });
+  } catch (error) {
+    console.error(`Error updating user role ${req.params.id}:`, error);
+    res.status(500).json({ message: 'Server error while updating user role.' });
+  }
+});
+
 // ==================== Delete User (Admin Only - Safe) ====================
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   const targetId = Number(req.params.id);

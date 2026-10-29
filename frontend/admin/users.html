@@ -62,14 +62,14 @@
     }
   </style>
 </head>
-<body style="background: #f8fafc; min-height: 100vh;">
+<body class="admin-body">
 
   <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
     <!-- Top Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
-          👥
+        <div class="admin-brand-icon" aria-hidden="true">
+          <i class="fas fa-users"></i>
         </div>
         <div>
           <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">User Accounts & Roles</h1>
@@ -100,30 +100,28 @@
     </nav>
 
     <!-- Filter & Search Toolbar -->
-    <div class="card" style="padding: 16px 20px; margin-bottom: 24px;">
-      <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex: 1; max-width: 600px;">
-          <div style="position: relative; flex: 1; min-width: 200px;">
-            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" id="searchInput" placeholder="Search by username or email..." class="form-input" style="padding-left: 38px;" oninput="fetchUsers()">
-          </div>
-
-          <select id="roleFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="fetchUsers()">
-            <option value="All">All Roles</option>
-            <option value="admin">Admins Only</option>
-            <option value="user">Customers Only</option>
-          </select>
-
-          <select id="statusFilter" class="form-input" style="width: auto; min-width: 150px;" onchange="fetchUsers()">
-            <option value="All">All Statuses</option>
-            <option value="active">Active Only</option>
-            <option value="deactivated">Deactivated</option>
-          </select>
+    <div class="admin-toolbar">
+      <div class="admin-toolbar-left">
+        <div class="search-input-wrap" style="flex: 1; min-width: 220px; max-width: 320px;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search by username or email..." class="form-input" oninput="fetchUsers()">
         </div>
 
-        <div id="userCountBadge" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted);">
-          Loading accounts...
-        </div>
+        <select id="roleFilter" class="form-select" style="width: auto; min-width: 140px;" onchange="fetchUsers()">
+          <option value="All">All Roles</option>
+          <option value="admin">Admins Only</option>
+          <option value="user">Customers Only</option>
+        </select>
+
+        <select id="statusFilter" class="form-select" style="width: auto; min-width: 140px;" onchange="fetchUsers()">
+          <option value="All">All Statuses</option>
+          <option value="active">Active Only</option>
+          <option value="deactivated">Deactivated</option>
+        </select>
+      </div>
+
+      <div id="userCountBadge" class="admin-count-badge">
+        Loading accounts...
       </div>
     </div>
 
@@ -252,11 +250,20 @@
             <td>${statusBadge}</td>
             <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
             <td style="text-align: right;">
-              <div style="display: inline-flex; gap: 6px;">
+              <div style="display: inline-flex; gap: 6px; align-items: center;">
                 <a href="edit-user.html?id=${u.user_id}" class="btn btn-sm btn-secondary" title="Edit user details">
                   <i class="fas fa-edit"></i>
                 </a>
                 ${!isSelf ? `
+                  ${isAdmin ? `
+                    <button onclick="toggleUserRole(${u.user_id}, 'user', '${escapeHtml(u.username)}')" class="btn btn-sm btn-secondary" style="font-size: 0.76rem;" title="Demote to Customer">
+                      <i class="fas fa-user-minus"></i> Customer
+                    </button>
+                  ` : `
+                    <button onclick="toggleUserRole(${u.user_id}, 'admin', '${escapeHtml(u.username)}')" class="btn btn-sm" style="background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; font-size: 0.76rem; font-weight: 700;" title="Promote to Administrator">
+                      <i class="fas fa-shield-alt"></i> Make Admin
+                    </button>
+                  `}
                   <button onclick="toggleUserStatus(${u.user_id}, ${isActive ? 0 : 1})" class="btn btn-sm ${isActive ? 'btn-outline-warning' : 'btn-outline-success'}" title="${isActive ? 'Deactivate account' : 'Activate account'}">
                     <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'}"></i>
                   </button>
@@ -271,6 +278,27 @@
           </tr>
         `;
       }).join('');
+    }
+
+    async function toggleUserRole(id, targetRole, name) {
+      const roleLabel = targetRole === 'admin' ? 'Administrator' : 'Customer';
+      if (!confirm(`Are you sure you want to change "${name}" role to ${roleLabel}?`)) return;
+
+      try {
+        const res = await fetch(`/api/users/${id}/role`, {
+          method: 'PATCH',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ role: targetRole })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to update user role');
+
+        showToast(data.message, 'success');
+        fetchUsers();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
     }
 
     async function toggleUserStatus(id, targetActive) {

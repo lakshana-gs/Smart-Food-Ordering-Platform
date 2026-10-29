@@ -25,6 +25,7 @@ let testUserId = null;
 let testMenuId = null;
 let testAddressId = null;
 let testOrderId = null;
+let testReorderId = null;
 
 let passedTests = 0;
 let failedTests = 0;
@@ -78,6 +79,9 @@ async function runTests() {
   console.log('======================================================\n');
 
   try {
+    // Pre-test cleanup: ensure no leftover test artifacts exist in DB
+    await db.query("DELETE FROM menu WHERE name LIKE '%Auto-Test%'");
+
     // ------------------------------------------------------------------
     // TEST SUITE 1: Database Integrity & Existing Records Preservation
     // ------------------------------------------------------------------
@@ -382,6 +386,7 @@ async function runTests() {
     // Reorder feature test
     const reorderRes = await makeRequest('POST', `/api/orders/reorder/${testOrderId}`, null, customerToken);
     assert(reorderRes.status === 200 && reorderRes.data.orderId, 'Customer successfully reordered items from past order');
+    testReorderId = reorderRes.data ? reorderRes.data.orderId : null;
 
     // ------------------------------------------------------------------
     // TEST SUITE 9: Recommendations & Admin Business Metrics
@@ -399,27 +404,39 @@ async function runTests() {
     assert(parseFloat(adminStats.data.revenue.totalRevenue) > 0, `Net revenue calculated correctly (Rs. ${adminStats.data.revenue.totalRevenue})`);
     assert(adminStats.data.counts.totalOrders >= 1, `Order count verified (${adminStats.data.counts.totalOrders} non-pending orders)`);
 
-    // Clean up temporary test dish, address, and test user
-    console.log('\n--- CLEANUP ---');
-    if (testAddressId) {
-      await makeRequest('DELETE', `/api/addresses/${testAddressId}`, null, customerToken);
-    }
-    if (testMenuId) {
-      await makeRequest('DELETE', `/api/menu/${testMenuId}`, null, adminToken);
-    }
-    if (testUserId) {
-      await db.query('DELETE FROM users WHERE user_id = ?', [testUserId]);
-    }
-    console.log('  Cleaned up temporary test artifacts safely without altering existing records.');
-
     console.log('\n======================================================');
     console.log(`🏁 TEST EXECUTION COMPLETE: ${passedTests} PASSED, ${failedTests} FAILED`);
     console.log('======================================================\n');
-
-    process.exit(failedTests > 0 ? 1 : 0);
   } catch (err) {
     console.error('\n❌ Fatal Test Runner Error:', err);
-    process.exit(1);
+    failedTests++;
+  } finally {
+    // Clean up temporary test dish, address, and test user safely
+    console.log('\n--- CLEANUP ---');
+    try {
+      if (testReorderId) {
+        await db.query('DELETE FROM billing WHERE order_id = ?', [testReorderId]);
+        await db.query('DELETE FROM orders WHERE id = ?', [testReorderId]);
+      }
+      if (testOrderId) {
+        await db.query('DELETE FROM billing WHERE order_id = ?', [testOrderId]);
+        await db.query('DELETE FROM orders WHERE id = ?', [testOrderId]);
+      }
+      if (testAddressId && customerToken) {
+        await makeRequest('DELETE', `/api/addresses/${testAddressId}`, null, customerToken).catch(() => {});
+      }
+      if (testMenuId) {
+        await db.query('DELETE FROM menu WHERE id = ?', [testMenuId]);
+      }
+      await db.query("DELETE FROM menu WHERE name LIKE '%Auto-Test%'");
+      if (testUserId) {
+        await db.query('DELETE FROM users WHERE user_id = ?', [testUserId]);
+      }
+      console.log('  Cleaned up temporary test artifacts safely without altering existing records.');
+    } catch (cleanErr) {
+      console.error('  Warning during cleanup:', cleanErr.message);
+    }
+    process.exit(failedTests > 0 ? 1 : 0);
   }
 }
 

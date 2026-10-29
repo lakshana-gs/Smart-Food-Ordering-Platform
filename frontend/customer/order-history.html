@@ -3,90 +3,210 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Order History - BiteFleet</title>
+  <title>My Orders — BiteFleet</title>
+  <meta name="description" content="View past orders, track live food delivery, download invoices, and reorder favourite meals.">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    .order-history-card {
+    /* Compact Orders Page Styling */
+    .order-card {
       background: white;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-xs);
       transition: all var(--transition-fast);
-      position: relative;
     }
-    .order-history-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
+
+    .order-card:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: #cbd5e1;
     }
-    .status-badge {
+
+    .order-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .order-ref {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent-dark);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-    .status-badge.pending { background: #fef3c7; color: #b45309; }
-    .status-badge.confirmed { background: #ecfdf5; color: #047857; }
-    .status-badge.preparing { background: #ffedd5; color: #c2410c; }
-    .status-badge.out-for-delivery { background: #e0f2fe; color: #0369a1; }
-    .status-badge.delivered { background: #dcfce7; color: #15803d; }
-    .status-badge.cancelled { background: #fee2e2; color: #b91c1c; }
-    
-    .filter-btn-bar {
-      display: flex;
       gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 20px;
     }
-    .filter-tab {
+
+    .order-meta-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .order-total-block {
+      text-align: right;
+    }
+
+    .order-total-amount {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+    }
+
+    .order-items-snippet {
+      background: var(--bg-muted);
+      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      font-size: 0.84rem;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .order-actions-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Filters Bar */
+    .filter-tabs-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      scrollbar-width: none;
+    }
+
+    .filter-tabs-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab-pill {
       border: 1px solid var(--border-light);
       background: white;
-      padding: 8px 16px;
+      padding: 5px 12px;
       border-radius: var(--radius-full);
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       cursor: pointer;
       white-space: nowrap;
       transition: all var(--transition-fast);
     }
-    .filter-tab.active {
+
+    .filter-tab-pill.active {
       background: var(--primary);
       border-color: var(--primary);
       color: white;
-      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
     }
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
+
+    /* Metric Badges */
+    .order-stats-strip {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
-    .stat-metric-card {
+
+    .order-stat-item {
       background: white;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
+      flex: 1;
+      min-width: 140px;
+      box-shadow: var(--shadow-xs);
     }
-    .stat-metric-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-md);
-      background: var(--bg-muted);
+
+    .stat-num {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      line-height: 1;
+    }
+
+    .stat-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+    }
+
+    /* Tracking Stepper in Quick Modal */
+    .timeline-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 24px 0 20px;
+    }
+
+    .timeline-steps::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--border-light);
+      z-index: 1;
+    }
+
+    .timeline-step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      flex: 1;
+    }
+
+    .step-icon-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--border-light);
+      color: var(--text-light);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 0.72rem;
+      margin: 0 auto 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .timeline-step.completed .step-icon-dot {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .timeline-step.active .step-icon-dot {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .timeline-step.active .step-label {
+      color: var(--primary);
+      font-weight: 700;
     }
   </style>
 </head>
@@ -95,72 +215,66 @@
   <!-- Dynamic Header -->
   <header class="site-header"></header>
 
-  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
-    <!-- Page Title -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+  <main class="container" style="padding-top: 24px; padding-bottom: 70px;">
+    <!-- Title Row & Search Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
       <div>
-        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">My Order History</h1>
-        <p style="color: var(--text-muted); font-size: 1rem;">Track, view receipts, reorder meals, and monitor live status.</p>
+        <h1 class="page-title">My Orders</h1>
+        <p class="page-subtitle">Track deliveries, inspect order receipts, and reorder your favourite meals.</p>
       </div>
-      <div style="width: 260px;">
-        <input type="text" id="orderSearchInput" class="form-control" placeholder="Search by order # or dish..." oninput="handleOrderSearch()">
+      <div style="width: 240px;">
+        <input type="text" id="orderSearchInput" class="form-control" placeholder="Search order # or dish..." oninput="handleOrderSearch()">
       </div>
     </div>
 
-    <!-- Summary Metrics -->
-    <div class="stats-row">
-      <div class="stat-metric-card">
-        <div class="stat-metric-icon" style="background: var(--primary-light); color: var(--accent);">
-          <i class="fas fa-receipt"></i>
-        </div>
+    <!-- Stats Summary Strip -->
+    <div class="order-stats-strip">
+      <div class="order-stat-item">
+        <i class="fas fa-receipt" style="color: var(--primary); font-size: 1.2rem;"></i>
         <div>
-          <div id="statTotalOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">Total Orders</div>
+          <div id="statTotalOrders" class="stat-num">0</div>
+          <div class="stat-desc">Total Orders</div>
         </div>
       </div>
 
-      <div class="stat-metric-card">
-        <div class="stat-metric-icon" style="background: var(--veg-bg); color: var(--veg-color);">
-          <i class="fas fa-circle-check"></i>
-        </div>
+      <div class="order-stat-item">
+        <i class="fas fa-circle-check" style="color: var(--success); font-size: 1.2rem;"></i>
         <div>
-          <div id="statDeliveredOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">Delivered</div>
+          <div id="statDeliveredOrders" class="stat-num">0</div>
+          <div class="stat-desc">Delivered</div>
         </div>
       </div>
 
-      <div class="stat-metric-card">
-        <div class="stat-metric-icon" style="background: #e0f2fe; color: #0284c7;">
-          <i class="fas fa-clock"></i>
-        </div>
+      <div class="order-stat-item">
+        <i class="fas fa-clock" style="color: var(--info); font-size: 1.2rem;"></i>
         <div>
-          <div id="statActiveOrders" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">0</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">In Progress</div>
+          <div id="statActiveOrders" class="stat-num">0</div>
+          <div class="stat-desc">In Progress</div>
         </div>
       </div>
     </div>
 
     <!-- Status Filters -->
-    <div class="filter-btn-bar">
-      <button class="filter-tab active" data-filter="all" onclick="filterStatus('all', this)">All Orders</button>
-      <button class="filter-tab" data-filter="active" onclick="filterStatus('active', this)">Active Orders</button>
-      <button class="filter-tab" data-filter="delivered" onclick="filterStatus('delivered', this)">Delivered</button>
-      <button class="filter-tab" data-filter="cancelled" onclick="filterStatus('cancelled', this)">Cancelled</button>
+    <div class="filter-tabs-bar">
+      <button class="filter-tab-pill active" onclick="filterStatus('all', this)">All Orders</button>
+      <button class="filter-tab-pill" onclick="filterStatus('active', this)">In Progress</button>
+      <button class="filter-tab-pill" onclick="filterStatus('delivered', this)">Delivered</button>
+      <button class="filter-tab-pill" onclick="filterStatus('cancelled', this)">Cancelled</button>
     </div>
 
-    <!-- Loading View -->
-    <div id="historyLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+    <!-- Loading State -->
+    <div id="historyLoading" style="text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 0.88rem;">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
-      <p style="margin-top: 12px;">Loading your order history...</p>
+      <p style="margin-top: 10px;">Loading your orders...</p>
     </div>
 
     <!-- Empty State -->
     <div id="historyEmpty" class="empty-state" style="display: none;">
-      <div class="empty-state-icon">📦</div>
-      <h2 class="empty-state-title">No Orders Found</h2>
-      <p class="empty-state-desc">You haven't placed any orders matching this filter yet.</p>
-      <a href="menu.html" class="btn btn-primary">
-        <i class="fas fa-utensils"></i> Order Delicious Food Now
+      <div class="empty-state-icon"><i class="fas fa-box-open"></i></div>
+      <h3 class="empty-state-title">No Orders Found</h3>
+      <p class="empty-state-desc">You have no orders matching this filter. Explore our menu to place your first order!</p>
+      <a href="menu.html" class="btn btn-primary btn-sm">
+        <i class="fas fa-utensils"></i> Browse Food Menu
       </a>
     </div>
 
@@ -168,11 +282,63 @@
     <div id="ordersListContainer"></div>
   </main>
 
+  <!-- Quick Order Tracking Modal (Integrated Track Order Flow) -->
+  <dialog id="quickTrackModal" class="app-modal" style="max-width: 560px;">
+    <div class="modal-header">
+      <h3 id="modalTrackTitle">Order Tracking</h3>
+      <button class="modal-close-btn" onclick="closeModal('quickTrackModal')" aria-label="Close modal">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Status Summary Header -->
+      <div style="background: var(--primary-subtle); border: 1px solid var(--primary-border); padding: 12px 16px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--primary);">Live Status</div>
+          <div id="modalTrackStatus" style="font-size: 1.15rem; font-weight: 800; color: var(--accent-dark); margin-top: 2px;">--</div>
+          <small id="modalTrackUpdated" style="color: var(--text-muted); font-size: 0.75rem;">Updated just now</small>
+        </div>
+        <div id="modalTrackBadgeWrap"></div>
+      </div>
+
+      <!-- Real Stages Progress Stepper -->
+      <div id="modalTimelineWrap" class="timeline-steps"></div>
+
+      <!-- Order Details Summary -->
+      <div style="background: var(--bg-muted); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 16px; font-size: 0.84rem;">
+        <div style="margin-bottom: 8px;">
+          <strong style="color: var(--accent-dark);">Items:</strong>
+          <span id="modalTrackItems" style="color: var(--text-secondary);">--</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px dashed var(--border-light);">
+          <span>Delivery Address:</span>
+          <span id="modalTrackAddress" style="font-weight: 600; text-align: right; max-width: 240px;">--</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+          <span>Payment:</span>
+          <span id="modalTrackPayment" style="font-weight: 600;">--</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border-light);">
+          <strong>Total Amount:</strong>
+          <strong id="modalTrackTotal" style="color: var(--accent-dark); font-size: 0.95rem;">₹0.00</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <a id="modalDedicatedTrackLink" href="#" class="btn btn-secondary btn-sm" style="flex: 1;">
+          <i class="fas fa-expand"></i> Full Tracking Page
+        </a>
+        <a id="modalInvoiceLink" href="#" class="btn btn-secondary btn-sm" style="flex: 1;">
+          <i class="fas fa-file-invoice"></i> View Invoice
+        </a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dynamic Footer -->
   <footer class="site-footer"></footer>
 
   <script src="../main.js"></script>
   <script>
-    renderNavbar('history');
+    renderNavbar('orders');
     renderFooter();
 
     let allOrdersData = [];
@@ -213,8 +379,7 @@
         console.error('History load error:', err);
         document.getElementById('historyLoading').innerHTML = `
           <div style="color: var(--error);">
-            <i class="fas fa-exclamation-triangle fa-2x"></i>
-            <p style="margin-top: 10px;">Failed to load order history. Please try again.</p>
+            <p>Failed to load order history. Please try again.</p>
           </div>
         `;
       }
@@ -222,7 +387,7 @@
 
     function filterStatus(status, btn) {
       currentFilter = status;
-      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-tab-pill').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
       renderOrders();
     }
@@ -272,37 +437,38 @@
         });
 
         return `
-          <div class="order-history-card">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <div class="order-card">
+            <div class="order-header-row">
               <div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--accent); margin: 0;">Order #${order.id}</h3>
+                <div class="order-ref">
+                  Order #${order.id}
                   <span class="status-badge ${statusLower}">
-                    ${order.statusEmoji || '📦'} ${order.status}
+                    ${order.status}
                   </span>
                 </div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
-                  Placed on ${orderDate} • ${order.payment_method || 'COD'}
+                <div class="order-meta-text">
+                  Placed on ${orderDate} • Payment: ${order.payment_method || 'COD'}
                 </div>
               </div>
 
-              <div style="text-align: right;">
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent);">Rs. ${totalAmount}</div>
-                <small style="color: var(--text-muted);">${order.itemCount || 1} item(s)</small>
+              <div class="order-total-block">
+                <div class="order-total-amount">₹${totalAmount}</div>
+                <small style="font-size: 0.76rem; color: var(--text-muted);">${order.itemCount || 1} item(s)</small>
               </div>
             </div>
 
-            <div style="background: var(--bg-muted); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-main); margin-bottom: 18px;">
-              <strong>Items:</strong> ${order.itemsSummary || 'Gourmet meal items'}
-              ${order.delivery_address ? `<div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;"><i class="fas fa-location-dot"></i> Delivery: ${order.delivery_address}</div>` : ''}
+            <div class="order-items-snippet">
+              <strong>Dishes:</strong> ${order.itemsSummary || 'Selected meal dishes'}
+              ${order.delivery_address ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;"><i class="fas fa-location-dot"></i> Deliver to: ${order.delivery_address}</div>` : ''}
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
-              <a href="track-order.html?order_id=${order.id}" class="btn btn-primary btn-sm">
-                <i class="fas fa-truck-fast"></i> Track Status
-              </a>
+            <div class="order-actions-row">
+              <!-- Integrated Track Order Action -->
+              <button onclick="openQuickTrack(${order.id})" class="btn btn-primary btn-sm" title="Track kitchen & delivery progress">
+                <i class="fas fa-truck-fast"></i> Track Order
+              </button>
 
-              <a href="billing.html?order_id=${order.id}" class="btn btn-secondary btn-sm">
+              <a href="billing.html?order_id=${order.id}" class="btn btn-secondary btn-sm" title="View tax invoice">
                 <i class="fas fa-file-invoice"></i> Invoice
               </a>
 
@@ -312,13 +478,94 @@
 
               ${isCancellable ? `
                 <button onclick="handleCancelOrder(${order.id})" class="btn btn-outline-danger btn-sm" title="Cancel this order">
-                  <i class="fas fa-times-circle"></i> Cancel Order
+                  Cancel
                 </button>
               ` : ''}
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    // Integrated Quick Track Order Modal Handler
+    async function openQuickTrack(orderId) {
+      const token = getToken();
+      try {
+        const res = await fetch(`/api/orders/track/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+          window.location.href = `track-order.html?order_id=${orderId}`;
+          return;
+        }
+
+        const data = await res.json();
+        const order = data.order || data;
+        const currentId = order.id || order.orderId || data.orderId || orderId;
+        const status = order.status || data.status || 'Pending';
+        const statusLower = status.toLowerCase();
+
+        document.getElementById('modalTrackTitle').textContent = `Order #${currentId} Tracking`;
+        document.getElementById('modalTrackStatus').textContent = status;
+        const lastUpdated = order.updated_at || order.updatedAt || order.created_at || order.createdAt;
+        document.getElementById('modalTrackUpdated').textContent = lastUpdated
+          ? `Updated: ${new Date(lastUpdated).toLocaleTimeString()}`
+          : 'Live status';
+
+        const itemsList = data.items || order.items || [];
+        document.getElementById('modalTrackItems').textContent = itemsList.map(i => `${i.item_name || i.name} × ${i.quantity}`).join(', ') || order.itemsSummary || '--';
+        document.getElementById('modalTrackAddress').textContent = order.delivery_address || order.deliveryAddress || 'Address provided at checkout';
+        document.getElementById('modalTrackPayment').textContent = order.payment_method || order.paymentMethod || 'Cash on Delivery';
+        const totalVal = parseFloat(order.total_amount ?? order.total ?? data.total ?? 0);
+        document.getElementById('modalTrackTotal').textContent = `₹${totalVal.toFixed(2)}`;
+
+        document.getElementById('modalDedicatedTrackLink').href = `track-order.html?order_id=${currentId}`;
+        document.getElementById('modalInvoiceLink').href = `billing.html?order_id=${currentId}`;
+
+        const badgeWrap = document.getElementById('modalTrackBadgeWrap');
+        badgeWrap.innerHTML = `<span class="status-badge ${statusLower.replace(/\s+/g, '-')}">${status}</span>`;
+
+        // Render Status Steps: Placed -> Confirmed -> Preparing -> Out for Delivery -> Delivered
+        const steps = [
+          { key: 'pending', label: 'Placed', icon: 'fa-clipboard-check' },
+          { key: 'confirmed', label: 'Confirmed', icon: 'fa-check' },
+          { key: 'preparing', label: 'Preparing', icon: 'fa-kitchen-set' },
+          { key: 'out for delivery', label: 'Out for Deliv.', icon: 'fa-motorcycle' },
+          { key: 'delivered', label: 'Delivered', icon: 'fa-house-circle-check' }
+        ];
+
+        const timelineContainer = document.getElementById('modalTimelineWrap');
+        if (statusLower === 'cancelled') {
+          timelineContainer.innerHTML = `
+            <div style="text-align: center; width: 100%; color: var(--error); padding: 10px;">
+              <i class="fas fa-times-circle fa-2x"></i>
+              <div style="font-weight: 700; margin-top: 6px;">Order Cancelled</div>
+            </div>
+          `;
+        } else {
+          const stepOrder = ['pending', 'confirmed', 'preparing', 'out for delivery', 'delivered'];
+          const currentIdx = stepOrder.indexOf(statusLower);
+
+          timelineContainer.innerHTML = steps.map((st, idx) => {
+            let stateClass = '';
+            if (idx < currentIdx) stateClass = 'completed';
+            else if (idx === currentIdx) stateClass = 'active';
+
+            return `
+              <div class="timeline-step ${stateClass}">
+                <div class="step-icon-dot">
+                  <i class="fas ${st.icon}"></i>
+                </div>
+                <div class="step-label">${st.label}</div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        openModal('quickTrackModal');
+      } catch (e) {
+        window.location.href = `track-order.html?order_id=${orderId}`;
+      }
     }
 
     async function handleReorder(orderId) {
@@ -334,7 +581,7 @@
           updateCartCount();
           setTimeout(() => {
             window.location.href = 'cart.html';
-          }, 800);
+          }, 700);
         } else {
           showToast(data.message || 'Could not reorder', 'error');
         }

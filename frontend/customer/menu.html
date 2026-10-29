@@ -3,102 +3,137 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Browse Our Delicious Menu - BiteFleet</title>
-  <meta name="description" content="Explore freshly prepared vegetarian and non-vegetarian gourmet dishes, burgers, pizzas, and desserts. Order online with quick delivery.">
+  <title>Menu & Ordering — BiteFleet</title>
+  <meta name="description" content="Explore freshly prepared gourmet meals, pizzas, burgers, biryanis, and desserts. Order online with quick doorstep delivery.">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Compact Menu Page Controls */
+    .menu-top-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
     .filter-panel {
       background: white;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 28px;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-xs);
     }
+
     .filter-row {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
     }
+
     .search-input-wrap {
       flex: 1;
-      min-width: 240px;
+      min-width: 220px;
       position: relative;
     }
+
     .search-input-wrap input {
       width: 100%;
-      padding: 10px 16px 10px 38px;
+      padding: 8px 12px 8px 34px;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-full);
-      font-size: 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
       outline: none;
+      transition: all var(--transition-fast);
+      background: white;
     }
+
+    .search-input-wrap input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+    }
+
     .search-input-wrap i {
       position: absolute;
-      left: 14px;
+      left: 11px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-light);
+      font-size: 0.85rem;
     }
+
     .dietary-btn-group {
       display: flex;
       background: var(--bg-muted);
-      border-radius: var(--radius-full);
-      padding: 4px;
-      gap: 4px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+      gap: 2px;
     }
+
     .dietary-btn {
       border: none;
       background: transparent;
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      font-size: 0.85rem;
+      padding: 5px 12px;
+      border-radius: var(--radius-xs);
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       color: var(--text-muted);
       transition: all var(--transition-fast);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
+
     .dietary-btn.active {
       background: white;
-      color: var(--text-main);
-      box-shadow: var(--shadow-sm);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-xs);
     }
+
     .sort-select {
-      padding: 8px 14px;
+      padding: 6px 12px;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-full);
-      font-size: 0.88rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
       font-weight: 500;
-      color: var(--text-main);
+      color: var(--text-primary);
       background: white;
       outline: none;
       cursor: pointer;
     }
+
+    .sort-select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Floating Cart Bar */
     .floating-cart-bar {
       position: fixed;
-      bottom: 24px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--accent);
+      background: var(--accent-dark);
       color: white;
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: var(--radius-full);
-      box-shadow: var(--shadow-xl);
+      box-shadow: var(--shadow-lg);
       z-index: 90;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       text-decoration: none;
+      font-size: 0.88rem;
       font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       transition: transform var(--transition-fast);
-      border: 2px solid var(--primary);
     }
+
     .floating-cart-bar:hover {
       transform: translateX(-50%) translateY(-2px);
     }
@@ -109,40 +144,55 @@
   <!-- Dynamic Header -->
   <header class="site-header"></header>
 
-  <main class="container" style="padding-top: 32px; padding-bottom: 80px;">
-    <!-- Page Title & Subtitle -->
-    <div style="margin-bottom: 24px;">
-      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 4px;">Our Gourmet Menu</h1>
-      <p style="color: var(--text-muted); font-size: 1rem;">Handcrafted meals cooked to order with farm-fresh ingredients.</p>
+  <main class="container" style="padding-top: 24px; padding-bottom: 70px;">
+    <!-- Top Toolbar: Page Title & Tab Toggle (All Items | Favourites) -->
+    <div class="menu-top-toolbar">
+      <div>
+        <h1 class="page-title" id="menuPageTitle">Food Menu</h1>
+        <p class="page-subtitle" id="menuPageSubtitle">Crafted fresh by expert chefs and delivered to your doorstep.</p>
+      </div>
+
+      <!-- Segmented Menu Navigation: All Items | Favourites -->
+      <div class="menu-tabs-wrap">
+        <button class="menu-tab-btn active" id="tabAll" onclick="setMenuTab('all')">
+          <i class="fas fa-utensils"></i> All Items
+        </button>
+        <button class="menu-tab-btn" id="tabFav" onclick="setMenuTab('favourites')">
+          <i class="fas fa-heart" style="color: #dc2626;"></i> Favourites
+          <span id="favTabBadge" class="tab-badge" style="display: none;">0</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Category Filter Bar -->
-    <div id="categoryBar" class="category-bar" style="margin-bottom: 20px;">
-      <button class="category-pill active" onclick="setCategory('All', this)"><span>🍽️</span> All Items</button>
-      <button class="category-pill" onclick="setCategory('Burgers', this)"><span>🍔</span> Burgers</button>
-      <button class="category-pill" onclick="setCategory('Pizzas', this)"><span>🍕</span> Pizzas</button>
-      <button class="category-pill" onclick="setCategory('Sandwiches', this)"><span>🥪</span> Sandwiches</button>
-      <button class="category-pill" onclick="setCategory('Biryani & Mains', this)"><span>🍗</span> Biryani & Mains</button>
-      <button class="category-pill" onclick="setCategory('South Indian', this)"><span>🥞</span> South Indian</button>
-      <button class="category-pill" onclick="setCategory('Sides', this)"><span>🍟</span> Sides</button>
-      <button class="category-pill" onclick="setCategory('Wraps', this)"><span>🌯</span> Wraps</button>
-      <button class="category-pill" onclick="setCategory('Desserts', this)"><span>🍰</span> Desserts</button>
+    <!-- Category Filter Bar (Visible in 'All Items' tab) -->
+    <div id="categoryBarWrap">
+      <div id="categoryBar" class="category-bar" style="margin-bottom: 14px;">
+        <button class="category-pill active" onclick="setCategory('All', this)">All Items</button>
+        <button class="category-pill" onclick="setCategory('Burgers', this)">Burgers</button>
+        <button class="category-pill" onclick="setCategory('Pizzas', this)">Pizzas</button>
+        <button class="category-pill" onclick="setCategory('Sandwiches', this)">Sandwiches</button>
+        <button class="category-pill" onclick="setCategory('Biryani & Mains', this)">Biryani & Mains</button>
+        <button class="category-pill" onclick="setCategory('South Indian', this)">South Indian</button>
+        <button class="category-pill" onclick="setCategory('Sides', this)">Sides</button>
+        <button class="category-pill" onclick="setCategory('Wraps', this)">Wraps</button>
+        <button class="category-pill" onclick="setCategory('Desserts', this)">Desserts</button>
+      </div>
     </div>
 
     <!-- Filter & Search Panel -->
-    <div class="filter-panel">
+    <div class="filter-panel" id="filterPanel">
       <div class="filter-row">
-        <!-- Search input with instant debounce -->
+        <!-- Search input -->
         <div class="search-input-wrap">
           <i class="fas fa-search"></i>
-          <input type="text" id="menuSearchInput" placeholder="Search dish by name, ingredients, or cuisine..." oninput="debounceSearch()">
+          <input type="text" id="menuSearchInput" placeholder="Search dish, cuisine, or ingredients..." oninput="debounceSearch()">
         </div>
 
-        <!-- Dietary Filter -->
+        <!-- Pure Veg / Non-Veg Dietary Filter -->
         <div class="dietary-btn-group">
           <button class="dietary-btn active" data-dietary="All" onclick="setDietary('All', this)">All</button>
           <button class="dietary-btn" data-dietary="Veg" onclick="setDietary('Veg', this)">
-            <span class="dietary-mark veg"></span> Pure Veg
+            <span class="dietary-mark veg"></span> Veg
           </button>
           <button class="dietary-btn" data-dietary="Non-Veg" onclick="setDietary('Non-Veg', this)">
             <span class="dietary-mark non-veg"></span> Non-Veg
@@ -151,7 +201,7 @@
 
         <!-- Sorting -->
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Sort By:</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Sort:</span>
           <select id="sortSelect" class="sort-select" onchange="applyFilters()">
             <option value="popular">Most Popular</option>
             <option value="rating">Highest Rated</option>
@@ -165,63 +215,63 @@
 
     <!-- Food Cards Grid -->
     <div id="menuGrid" class="food-grid">
-      <div style="grid-column: 1/-1; text-align: center; padding: 60px 0; color: var(--text-muted);">
+      <div style="grid-column: 1/-1; text-align: center; padding: 50px 0; color: var(--text-muted); font-size: 0.88rem;">
         <i class="fas fa-spinner fa-spin fa-2x"></i>
-        <p style="margin-top: 12px;">Loading delicious menu items...</p>
+        <p style="margin-top: 10px;">Loading menu items...</p>
       </div>
     </div>
   </main>
 
-  <!-- Floating Quick Cart Bar (Visible when cart has items) -->
+  <!-- Floating Quick Cart Bar (Visible when items exist in cart) -->
   <a href="cart.html" id="floatingCartBar" class="floating-cart-bar" style="display: none;">
     <div style="display: flex; align-items: center; gap: 8px;">
-      <i class="fas fa-shopping-bag"></i>
+      <i class="fas fa-shopping-bag" style="color: var(--primary);"></i>
       <span id="floatingCartCount">0 items in cart</span>
     </div>
     <span style="font-weight: 700; color: var(--primary);">View Cart →</span>
   </a>
 
-  <!-- Food Item Detail Modal (Phase 2 & 7) -->
+  <!-- Food Item Detail Modal -->
   <dialog id="foodDetailModal" class="app-modal">
     <div class="modal-header">
-      <h3 id="modalFoodTitle">Food Details</h3>
+      <h3 id="modalFoodTitle">Dish Details</h3>
       <button class="modal-close-btn" onclick="closeModal('foodDetailModal')" aria-label="Close modal">×</button>
     </div>
     <div class="modal-body">
-      <div style="text-align: center; background: linear-gradient(135deg, #fff7ed, #fef3c7); padding: 24px; border-radius: var(--radius-md); margin-bottom: 18px;">
-        <span id="modalFoodEmoji" style="font-size: 5rem; display: block;">🍽️</span>
-        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;">
+      <div style="position: relative; height: 180px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 14px; background: var(--bg-muted);">
+        <img id="modalFoodImg" src="" alt="Dish image" style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; top: 8px; left: 8px; display: flex; gap: 6px;">
           <span id="modalFoodDietary" class="category-tag"></span>
           <span id="modalFoodCategory" class="category-tag"></span>
           <span id="modalFoodRating" class="rating-badge"></span>
         </div>
       </div>
 
-      <p id="modalFoodDesc" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; font-size: 0.95rem;"></p>
+      <p id="modalFoodDesc" style="color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; font-size: 0.88rem;"></p>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--bg-muted); padding: 14px; border-radius: var(--radius-md); font-size: 0.88rem; margin-bottom: 20px;">
+      <div style="display: flex; gap: 16px; background: var(--bg-muted); padding: 10px 14px; border-radius: var(--radius-xs); font-size: 0.82rem; margin-bottom: 16px;">
         <div><strong>Prep Time:</strong> <span id="modalFoodPrep"></span> mins</div>
         <div><strong>Status:</strong> <span id="modalFoodAvail" style="color: var(--success); font-weight: 600;">Available</span></div>
       </div>
 
-      <!-- Frequently Bought Together section inside modal (Phase 3) -->
-      <div id="modalPairingsSection" style="margin-bottom: 20px; display: none;">
-        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 8px;">Frequently Paired With:</h4>
+      <!-- Frequently Bought Together section inside modal -->
+      <div id="modalPairingsSection" style="margin-bottom: 16px; display: none;">
+        <h4 style="font-size: 0.82rem; font-weight: 700; color: var(--accent-dark); margin-bottom: 8px;">Frequently Paired With:</h4>
         <div id="modalPairingsList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Item Price</span>
-          <div id="modalFoodPrice" style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">Rs. 0.00</div>
+          <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">Price</span>
+          <div id="modalFoodPrice" style="font-size: 1.3rem; font-weight: 800; color: var(--accent-dark);">₹0.00</div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="display: flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-full); background: white;">
-            <button onclick="adjustModalQty(-1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">-</button>
-            <span id="modalQtyDisplay" style="font-weight: 700; min-width: 20px; text-align: center;">1</span>
-            <button onclick="adjustModalQty(1)" style="border: none; background: none; padding: 6px 12px; font-size: 1.1rem; cursor: pointer;">+</button>
+          <div style="display: flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: white;">
+            <button onclick="adjustModalQty(-1)" style="border: none; background: none; padding: 4px 10px; font-size: 1rem; cursor: pointer;">-</button>
+            <span id="modalQtyDisplay" style="font-weight: 700; min-width: 22px; text-align: center; font-size: 0.88rem;">1</span>
+            <button onclick="adjustModalQty(1)" style="border: none; background: none; padding: 4px 10px; font-size: 1rem; cursor: pointer;">+</button>
           </div>
-          <button id="modalAddToCartBtn" class="btn btn-primary" onclick="addModalItemToCart()">
+          <button id="modalAddToCartBtn" class="btn btn-primary btn-sm" onclick="addModalItemToCart()">
             <i class="fas fa-shopping-bag"></i> Add to Cart
           </button>
         </div>
@@ -237,14 +287,19 @@
     renderNavbar('menu');
     renderFooter();
 
+    let currentTab = 'all'; // 'all' or 'favourites'
     let currentCategory = 'All';
     let currentDietary = 'All';
     let searchDebounceTimer = null;
     let activeModalItem = null;
     let modalQuantity = 1;
+    let userFavouriteIds = new Set();
 
-    // Read URL query parameters (e.g. ?category=Burgers or ?search=pizza)
+    // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'favourites' || urlParams.get('view') === 'favourites') {
+      currentTab = 'favourites';
+    }
     if (urlParams.get('category')) {
       currentCategory = urlParams.get('category');
     }
@@ -255,7 +310,32 @@
       document.getElementById('sortSelect').value = urlParams.get('sort');
     }
 
-    // Set active category pill
+    // Tab Switcher: All Items vs Favourites
+    function setMenuTab(tab) {
+      currentTab = tab;
+      const tabAll = document.getElementById('tabAll');
+      const tabFav = document.getElementById('tabFav');
+      const categoryBarWrap = document.getElementById('categoryBarWrap');
+      const pageTitle = document.getElementById('menuPageTitle');
+      const pageSubtitle = document.getElementById('menuPageSubtitle');
+
+      if (tab === 'favourites') {
+        tabAll.classList.remove('active');
+        tabFav.classList.add('active');
+        categoryBarWrap.style.display = 'none';
+        pageTitle.textContent = 'Saved Favourites';
+        pageSubtitle.textContent = 'Your favourite dishes saved for instant reordering.';
+        loadFavouritesView();
+      } else {
+        tabFav.classList.remove('active');
+        tabAll.classList.add('active');
+        categoryBarWrap.style.display = 'block';
+        pageTitle.textContent = 'Food Menu';
+        pageSubtitle.textContent = 'Crafted fresh by expert chefs and delivered to your doorstep.';
+        applyFilters();
+      }
+    }
+
     function setCategory(cat, btn) {
       currentCategory = cat;
       document.querySelectorAll('#categoryBar .category-pill').forEach(b => b.classList.remove('active'));
@@ -263,7 +343,6 @@
       applyFilters();
     }
 
-    // Set active dietary filter
     function setDietary(diet, btn) {
       currentDietary = diet;
       document.querySelectorAll('.dietary-btn-group .dietary-btn').forEach(b => b.classList.remove('active'));
@@ -273,18 +352,90 @@
 
     function debounceSearch() {
       clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(applyFilters, 300);
+      searchDebounceTimer = setTimeout(() => {
+        if (currentTab === 'favourites') {
+          loadFavouritesView();
+        } else {
+          applyFilters();
+        }
+      }, 250);
     }
 
+    // Render Food Card with Real Photography
+    function renderFoodCard(item) {
+      const isVeg = (item.dietary || '').toLowerCase() === 'veg';
+      const price = parseFloat(item.price).toFixed(2);
+      const isAvailable = Boolean(item.is_available);
+      const isFav = userFavouriteIds.has(item.id);
+      const imgSrc = getFoodImage(item);
+
+      return `
+        <div class="food-card" data-id="${item.id}">
+          <div class="food-card-media" onclick="openItemModal(${item.id})">
+            <img src="${imgSrc}" alt="${item.name}" class="food-card-img" loading="lazy" onerror="handleImageError(this, '${item.category}')">
+            <div class="food-card-overlay-top">
+              <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}" title="${item.dietary || 'Dietary'}"></span>
+              <span class="rating-badge"><i class="fas fa-star"></i> ${item.rating || '4.5'}</span>
+            </div>
+            <span class="food-card-prep-badge"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
+            ${!isAvailable ? '<span class="sold-out-badge">Sold Out</span>' : ''}
+            <button class="favourite-btn ${isFav ? 'active' : ''}" data-fav-id="${item.id}" onclick="event.stopPropagation(); handleToggleFav(${item.id}, this)" title="${isFav ? 'Remove from Favourites' : 'Save to Favourites'}">
+              <i class="${isFav ? 'fas fa-heart' : 'far fa-heart'}" style="${isFav ? 'color: #dc2626;' : ''}"></i>
+            </button>
+          </div>
+
+          <div class="food-card-body">
+            <h3 class="food-card-title" onclick="openItemModal(${item.id})">${item.name}</h3>
+            <p class="food-card-desc">${item.description || 'Fresh gourmet meal prepared with select ingredients.'}</p>
+
+            <div class="food-card-footer">
+              <div class="food-price">₹${price}</div>
+              ${isAvailable ? `
+                <button class="add-btn" onclick="handleAddToCart(${item.id})">
+                  <i class="fas fa-plus"></i> ADD
+                </button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" disabled>Sold Out</button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function handleToggleFav(menuId, btn) {
+      const wasFav = userFavouriteIds.has(menuId);
+      const success = await toggleFavouriteApi(menuId, btn);
+      if (success) {
+        if (wasFav) {
+          userFavouriteIds.delete(menuId);
+        } else {
+          userFavouriteIds.add(menuId);
+        }
+        updateFavTabBadge();
+        if (currentTab === 'favourites') {
+          loadFavouritesView();
+        }
+      }
+    }
+
+    async function handleAddToCart(menuId) {
+      const success = await addToCartApi(menuId, 1);
+      if (success) {
+        checkCartFloating();
+      }
+    }
+
+    // Apply Filters for 'All Items' tab
     async function applyFilters() {
       const container = document.getElementById('menuGrid');
       const search = document.getElementById('menuSearchInput').value.trim();
       const sort = document.getElementById('sortSelect').value;
 
       container.innerHTML = `
-        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
-          <i class="fas fa-spinner fa-spin fa-2x"></i>
-          <p style="margin-top: 10px;">Finding dishes...</p>
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.88rem;">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p style="margin-top: 8px;">Finding dishes...</p>
         </div>
       `;
 
@@ -303,24 +454,89 @@
         if (items.length === 0) {
           container.innerHTML = `
             <div style="grid-column: 1/-1;" class="empty-state">
-              <div class="empty-state-icon">🔍</div>
-              <h3 class="empty-state-title">No Dishes Match Your Search</h3>
-              <p class="empty-state-desc">Try clearing your dietary filters, searching for a different keyword, or exploring another category.</p>
+              <div class="empty-state-icon"><i class="fas fa-magnifying-glass"></i></div>
+              <h3 class="empty-state-title">No Dishes Found</h3>
+              <p class="empty-state-desc">Try clearing your filters or searching for another keyword.</p>
               <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset All Filters</button>
             </div>
           `;
           return;
         }
 
-        container.innerHTML = items.map(item => renderFoodCard(item)).join('');
-        checkFavourites();
+        container.innerHTML = items.map(renderFoodCard).join('');
         checkCartFloating();
       } catch (err) {
         console.error('Menu load error:', err);
         container.innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--error);">
-            <i class="fas fa-exclamation-circle fa-2x"></i>
-            <p style="margin-top: 10px;">Failed to load menu items. Please check your connection and try again.</p>
+          <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--error);">
+            <p>Failed to load menu items. Please check your connection.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Load Favourites view inside Menu page
+    async function loadFavouritesView() {
+      const container = document.getElementById('menuGrid');
+      const token = getToken();
+
+      if (!token) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1;" class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-heart" style="color: var(--primary);"></i></div>
+            <h3 class="empty-state-title">Sign In to View Favourites</h3>
+            <p class="empty-state-desc">Log in to view and manage your saved favourite dishes.</p>
+            <a href="../login.html" class="btn btn-primary btn-sm">Log In</a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.88rem;">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p style="margin-top: 8px;">Loading saved favourites...</p>
+        </div>
+      `;
+
+      try {
+        const res = await fetch('/api/favourites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to load favourites');
+
+        let items = await res.json();
+        const search = document.getElementById('menuSearchInput').value.trim().toLowerCase();
+        const diet = currentDietary;
+
+        if (search) {
+          items = items.filter(it => it.name.toLowerCase().includes(search) || (it.description && it.description.toLowerCase().includes(search)));
+        }
+        if (diet && diet !== 'All') {
+          items = items.filter(it => (it.dietary || '').toLowerCase() === diet.toLowerCase());
+        }
+
+        if (items.length === 0) {
+          container.innerHTML = `
+            <div style="grid-column: 1/-1;" class="empty-state">
+              <div class="empty-state-icon"><i class="far fa-heart" style="color: var(--text-light);"></i></div>
+              <h3 class="empty-state-title">No Saved Favourites Yet</h3>
+              <p class="empty-state-desc">Tap the heart icon on any dish card while browsing to save it here for fast ordering.</p>
+              <button class="btn btn-primary btn-sm" onclick="setMenuTab('all')">
+                <i class="fas fa-utensils"></i> Browse All Dishes
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = items.map(renderFoodCard).join('');
+        checkCartFloating();
+      } catch (err) {
+        console.error('Favourites load error:', err);
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--error);">
+            <p>Failed to load favourites. Please try again.</p>
           </div>
         `;
       }
@@ -341,55 +557,8 @@
       applyFilters();
     }
 
-    function renderFoodCard(item) {
-      const isVeg = (item.dietary || '').toLowerCase() === 'veg';
-      const price = parseFloat(item.price).toFixed(2);
-      const isAvailable = Boolean(item.is_available);
-
-      return `
-        <div class="food-card" data-id="${item.id}">
-          <div class="food-card-media" onclick="openItemModal(${item.id})">
-            <span class="food-card-emoji">${item.emoji || '🍽️'}</span>
-            <span class="food-card-prep"><i class="far fa-clock"></i> ${item.prep_minutes || 20}m</span>
-            ${!isAvailable ? '<span class="sold-out-badge">Sold Out</span>' : ''}
-            <button class="favourite-btn" data-fav-id="${item.id}" onclick="event.stopPropagation(); toggleFavouriteApi(${item.id}, this)" title="Save to Favourites">
-              <i class="far fa-heart"></i>
-            </button>
-          </div>
-
-          <div class="food-card-body">
-            <div class="food-card-header">
-              <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}" title="${item.dietary || 'Dish'}"></span>
-              <span class="rating-badge">★ ${item.rating || '4.5'}</span>
-            </div>
-
-            <h3 class="food-card-title" onclick="openItemModal(${item.id})">${item.name}</h3>
-            <p class="food-card-desc">${item.description || 'Deliciously prepared with selected fresh ingredients.'}</p>
-
-            <div class="food-card-footer">
-              <div class="food-price">Rs. ${price}</div>
-              ${isAvailable ? `
-                <button class="add-btn" onclick="handleAddToCart(${item.id})">
-                  <i class="fas fa-plus"></i> Add
-                </button>
-              ` : `
-                <button class="btn btn-secondary btn-sm" disabled>Sold Out</button>
-              `}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    async function handleAddToCart(menuId) {
-      const success = await addToCartApi(menuId, 1);
-      if (success) {
-        checkCartFloating();
-      }
-    }
-
-    // Check favourites
-    async function checkFavourites() {
+    // Fetch Favourite IDs to sync active heart states
+    async function syncFavouriteIds() {
       const token = getToken();
       if (!token) return;
       try {
@@ -398,15 +567,18 @@
         });
         if (res.ok) {
           const ids = await res.json();
-          ids.forEach(id => {
-            const btns = document.querySelectorAll(`[data-fav-id="${id}"]`);
-            btns.forEach(btn => {
-              btn.classList.add('active');
-              btn.innerHTML = '<i class="fas fa-heart" style="color: #dc2626;"></i>';
-            });
-          });
+          userFavouriteIds = new Set(ids);
+          updateFavTabBadge();
         }
       } catch (e) {}
+    }
+
+    function updateFavTabBadge() {
+      const badge = document.getElementById('favTabBadge');
+      if (!badge) return;
+      const count = userFavouriteIds.size;
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
     }
 
     // Check cart floating bar
@@ -425,7 +597,7 @@
           const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
           if (count > 0) {
             bar.style.display = 'flex';
-            countEl.textContent = `${count} item${count > 1 ? 's' : ''} in cart (Rs. ${data.total.toFixed(2)})`;
+            countEl.textContent = `${count} item${count > 1 ? 's' : ''} in cart (₹${data.total.toFixed(2)})`;
           } else {
             bar.style.display = 'none';
           }
@@ -443,30 +615,28 @@
         modalQuantity = 1;
 
         document.getElementById('modalFoodTitle').textContent = item.name;
-        document.getElementById('modalFoodEmoji').textContent = item.emoji || '🍽️';
-        document.getElementById('modalFoodDietary').textContent = item.dietary || 'Standard';
+        document.getElementById('modalFoodImg').src = getFoodImage(item);
+        document.getElementById('modalFoodDietary').textContent = item.dietary || 'Dish';
         document.getElementById('modalFoodCategory').textContent = item.category || 'Special';
-        document.getElementById('modalFoodRating').textContent = `★ ${item.rating || '4.5'} (${item.rating_count || 12} reviews)`;
-        document.getElementById('modalFoodDesc').textContent = item.description || 'Fresh gourmet meal prepared by our expert kitchen staff using selected quality ingredients.';
+        document.getElementById('modalFoodRating').innerHTML = `<i class="fas fa-star" style="color: #f59e0b;"></i> ${item.rating || '4.5'} (${item.rating_count || 12})`;
+        document.getElementById('modalFoodDesc').textContent = item.description || 'Fresh gourmet meal prepared by our expert kitchen staff.';
         document.getElementById('modalFoodPrep').textContent = item.prep_minutes || 20;
-        document.getElementById('modalFoodPrice').textContent = `Rs. ${parseFloat(item.price).toFixed(2)}`;
+        document.getElementById('modalFoodPrice').textContent = `₹${parseFloat(item.price).toFixed(2)}`;
         document.getElementById('modalQtyDisplay').textContent = '1';
 
         const availEl = document.getElementById('modalFoodAvail');
         const addBtn = document.getElementById('modalAddToCartBtn');
         if (item.is_available) {
-          availEl.textContent = 'In Stock & Fresh';
+          availEl.textContent = 'In Stock';
           availEl.style.color = 'var(--success)';
           addBtn.disabled = false;
         } else {
-          availEl.textContent = 'Currently Sold Out';
+          availEl.textContent = 'Sold Out';
           availEl.style.color = 'var(--error)';
           addBtn.disabled = true;
         }
 
-        // Fetch Frequently Bought Together (Phase 3)
         loadPairings(itemId);
-
         openModal('foodDetailModal');
       } catch (err) {
         console.error('Modal error:', err);
@@ -484,11 +654,10 @@
 
         if (items.length > 0) {
           list.innerHTML = items.map(p => `
-            <div style="background: white; border: 1px solid var(--border-light); padding: 6px 12px; border-radius: var(--radius-md); font-size: 0.82rem; display: flex; align-items: center; gap: 6px;">
-              <span>${p.emoji || '🍽️'}</span>
+            <div style="background: white; border: 1px solid var(--border-light); padding: 5px 10px; border-radius: var(--radius-xs); font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
               <span style="font-weight: 600;">${p.name}</span>
-              <span style="color: var(--primary-dark); font-weight: 700;">+Rs. ${parseFloat(p.price).toFixed(0)}</span>
-              <button onclick="addToCartApi(${p.id}, 1)" style="border: none; background: var(--primary-light); color: var(--accent); padding: 2px 8px; border-radius: var(--radius-full); cursor: pointer; font-size: 0.75rem; font-weight: 700;">+ Add</button>
+              <span style="color: var(--primary); font-weight: 700;">+₹${parseFloat(p.price).toFixed(0)}</span>
+              <button onclick="addToCartApi(${p.id}, 1)" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.72rem;">+ Add</button>
             </div>
           `).join('');
           section.style.display = 'block';
@@ -514,18 +683,22 @@
       }
     }
 
-    // Set initial category from URL if present
-    document.addEventListener('DOMContentLoaded', () => {
-      if (currentCategory && currentCategory !== 'All') {
-        const pills = document.querySelectorAll('#categoryBar .category-pill');
-        pills.forEach(p => {
-          if (p.textContent.includes(currentCategory)) {
-            pills.forEach(b => b.classList.remove('active'));
-            p.classList.add('active');
-          }
-        });
+    document.addEventListener('DOMContentLoaded', async () => {
+      await syncFavouriteIds();
+      if (currentTab === 'favourites') {
+        setMenuTab('favourites');
+      } else {
+        if (currentCategory && currentCategory !== 'All') {
+          const pills = document.querySelectorAll('#categoryBar .category-pill');
+          pills.forEach(p => {
+            if (p.textContent.includes(currentCategory)) {
+              pills.forEach(b => b.classList.remove('active'));
+              p.classList.add('active');
+            }
+          });
+        }
+        applyFilters();
       }
-      applyFilters();
     });
   </script>
 </body>

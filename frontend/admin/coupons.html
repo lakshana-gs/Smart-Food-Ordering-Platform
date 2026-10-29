@@ -60,16 +60,113 @@
     .admin-table tr:hover td {
       background: #faf8f5;
     }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 25, 23, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none !important;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .modal-backdrop.active {
+      display: flex !important;
+    }
+    .modal-card {
+      background: #ffffff;
+      border: 1px solid #e7e5e4;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      width: 100%;
+      max-width: 550px;
+      padding: 26px 28px;
+      position: relative;
+      box-sizing: border-box;
+      animation: modalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPopIn {
+      from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e7e5e4;
+    }
+    .modal-close {
+      background: #f5f5f4;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.25rem;
+      line-height: 1;
+      color: #78716c;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      padding: 0;
+      outline: none;
+    }
+    .modal-close:hover {
+      background: #fee2e2;
+      color: #dc2626;
+      transform: rotate(90deg);
+    }
+    .form-input, .form-select {
+      width: 100%;
+      height: 40px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      border: 1px solid #d6d3d1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #1c1917;
+      outline: none;
+      transition: all var(--transition-fast);
+      box-sizing: border-box;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+    }
+    .form-select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2378716c'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 36px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #44403c;
+      margin-bottom: 6px;
+    }
   </style>
 </head>
-<body style="background: #f8fafc; min-height: 100vh;">
+<body class="admin-body">
 
   <div class="container" style="padding-top: 24px; padding-bottom: 60px;">
     <!-- Top Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: linear-gradient(135deg, #ec4899, #be185d); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-sm);">
-          🏷️
+        <div class="admin-brand-icon" aria-hidden="true">
+          <i class="fas fa-tags"></i>
         </div>
         <div>
           <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--accent); margin: 0;">Coupons & Promotions</h1>
@@ -128,26 +225,26 @@
     </div>
   </div>
 
-  <!-- Create Coupon Modal -->
-  <div id="couponModal" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 550px;">
+  <!-- Create Coupon Modal (Opens only when Create New Coupon is clicked) -->
+  <div id="couponModal" class="modal-backdrop" onclick="if (event.target === this) closeCouponModal()">
+    <div class="modal-card">
       <div class="modal-header">
-        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent);">
-          Create New Promo Coupon
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-ticket-alt" style="color: var(--primary);"></i> Create New Promo Coupon
         </h3>
-        <button onclick="closeCouponModal()" class="modal-close">&times;</button>
+        <button type="button" onclick="closeCouponModal()" class="modal-close" aria-label="Close modal">&times;</button>
       </div>
 
       <form id="couponForm" onsubmit="handleCouponSubmit(event)">
-        <div style="margin-bottom: 14px;">
+        <div style="margin-bottom: 16px;">
           <label class="form-label" for="couponCode">Promo Code * (Uppercase, e.g. FEAST25)</label>
           <input type="text" id="couponCode" class="form-input" placeholder="e.g. FEAST25" style="text-transform: uppercase; font-family: monospace; font-weight: 700; letter-spacing: 1px;" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
           <div>
             <label class="form-label" for="discountType">Discount Type *</label>
-            <select id="discountType" class="form-input" onchange="toggleDiscountFields()">
+            <select id="discountType" class="form-select" onchange="toggleDiscountFields()">
               <option value="percent">Percentage Off (%)</option>
               <option value="fixed">Flat Amount Off (Rs.)</option>
             </select>
@@ -158,7 +255,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
           <div>
             <label class="form-label" for="minOrder">Min Order Amount (Rs.)</label>
             <input type="number" id="minOrder" class="form-input" placeholder="200" min="0" step="10" value="0">
@@ -169,7 +266,7 @@
           </div>
         </div>
 
-        <div style="margin-bottom: 14px;">
+        <div style="margin-bottom: 16px;">
           <label class="form-label" for="expiryDate">Expiration Date (Optional)</label>
           <input type="date" id="expiryDate" class="form-input">
         </div>

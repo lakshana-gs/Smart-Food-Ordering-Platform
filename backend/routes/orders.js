@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const { requireAuth, requireAdmin } = require('../middleware/authMiddleware');
+const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/authMiddleware');
 
 const VALID_STATUSES = [
   'Pending',
@@ -600,13 +600,11 @@ router.get('/history', requireAuth, async (req, res) => {
 });
 
 // ==================== 9. Track Order Status ====================
-router.get('/track/:id', requireAuth, async (req, res) => {
+router.get('/track/:id', optionalAuth, async (req, res) => {
   const { id } = req.params;
-  const userId = req.user.id;
-  const userRole = req.user.role;
 
   try {
-    let query = `
+    const query = `
       SELECT o.id, o.user_id, o.status, o.statusEmoji, o.created_at, o.updated_at,
              COALESCE(o.total_amount, b.total, 0.00) AS totalAmount,
              COALESCE(o.subtotal, b.subtotal, 0.00) AS subtotal,
@@ -617,17 +615,11 @@ router.get('/track/:id', requireAuth, async (req, res) => {
       LEFT JOIN billing b ON o.id = b.order_id
       WHERE o.id = ?
     `;
-    const params = [id];
 
-    if (userRole !== 'admin') {
-      query += ' AND o.user_id = ?';
-      params.push(userId);
-    }
-
-    const [orders] = await db.query(query, params);
+    const [orders] = await db.query(query, [id]);
 
     if (orders.length === 0) {
-      return res.status(404).json({ message: 'Order not found or access denied.' });
+      return res.status(404).json({ message: `Order #${id} not found.` });
     }
 
     const order = orders[0];
@@ -674,27 +666,47 @@ router.get('/track/:id', requireAuth, async (req, res) => {
       timeline.push({ step: 'Cancelled', status: 'Cancelled', icon: '❌', completed: true });
     }
 
-    res.json({
+    const formattedItems = items.map(i => ({
+      name: i.name,
+      item_name: i.name,
+      emoji: i.emoji,
+      quantity: i.quantity,
+      unitPrice: parseFloat(i.unitPrice),
+      price: parseFloat(i.unitPrice),
+      total: parseFloat((i.quantity * i.unitPrice).toFixed(2))
+    }));
+
+    const orderSummary = {
+      id: order.id,
       orderId: order.id,
+      user_id: order.user_id,
       status: order.status,
       statusEmoji: order.statusEmoji || DEFAULT_STATUS_EMOJIS[order.status] || '',
+      created_at: order.created_at,
       createdAt: order.created_at,
+      updated_at: order.updated_at,
       updatedAt: order.updated_at,
+      customer_name: order.customer_name,
       customerName: order.customer_name,
+      delivery_address: order.delivery_address,
       deliveryAddress: order.delivery_address,
+      contact_phone: order.contact_phone,
       contactPhone: order.contact_phone,
+      payment_method: order.payment_method,
       paymentMethod: order.payment_method,
       subtotal: parseFloat(order.subtotal),
+      delivery_fee: parseFloat(order.deliveryFee),
       deliveryFee: parseFloat(order.deliveryFee),
       discount: parseFloat(order.discountAmount),
+      discount_amount: parseFloat(order.discountAmount),
       total: parseFloat(order.totalAmount),
-      items: items.map(i => ({
-        name: i.name,
-        emoji: i.emoji,
-        quantity: i.quantity,
-        unitPrice: parseFloat(i.unitPrice),
-        total: parseFloat((i.quantity * i.unitPrice).toFixed(2))
-      })),
+      total_amount: parseFloat(order.totalAmount)
+    };
+
+    res.json({
+      ...orderSummary,
+      order: orderSummary,
+      items: formattedItems,
       timeline
     });
   } catch (error) {
@@ -704,24 +716,15 @@ router.get('/track/:id', requireAuth, async (req, res) => {
 });
 
 // ==================== 10. Get Billing Details ====================
-router.get('/:id/billing', requireAuth, async (req, res) => {
+router.get('/:id/billing', optionalAuth, async (req, res) => {
   const orderId = req.params.id;
-  const userId = req.user.id;
-  const userRole = req.user.role;
 
   try {
-    let orderQuery = 'SELECT id, status, statusEmoji, user_id, customer_name, delivery_address, created_at FROM orders WHERE id = ?';
-    const params = [orderId];
-
-    if (userRole !== 'admin') {
-      orderQuery += ' AND user_id = ?';
-      params.push(userId);
-    }
-
-    const [orders] = await db.query(orderQuery, params);
+    const orderQuery = 'SELECT id, status, statusEmoji, user_id, customer_name, delivery_address, created_at FROM orders WHERE id = ?';
+    const [orders] = await db.query(orderQuery, [orderId]);
 
     if (orders.length === 0) {
-      return res.status(404).json({ message: 'Order not found or access denied.' });
+      return res.status(404).json({ message: `Invoice for order #${orderId} not found.` });
     }
 
     const order = orders[0];

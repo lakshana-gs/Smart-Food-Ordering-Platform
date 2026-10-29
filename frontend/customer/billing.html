@@ -3,97 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Official Order Invoice - BiteFleet</title>
+  <title>Order Tax Invoice — BiteFleet</title>
+  <meta name="description" content="Official order invoice, payment summary, and receipt on BiteFleet.">
   <link rel="stylesheet" href="../css/app.css">
-  <link rel="stylesheet" href="../css/billing.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Compact Invoice Styling */
+    .invoice-card {
+      margin: 0 auto;
+      max-width: 680px;
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 20px;
+      gap: 16px;
+    }
+
+    .invoice-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: var(--bg-muted);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+    }
+
+    .invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+    }
+
+    .invoice-table th {
+      text-align: left;
+      padding: 8px 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .invoice-table td {
+      padding: 10px;
+      border-bottom: 1px dashed var(--border-light);
+    }
+
+    @media print {
+      .site-header, .site-footer, .no-print {
+        display: none !important;
+      }
+      .invoice-card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      body {
+        background: white;
+      }
+    }
+  </style>
 </head>
 <body>
 
   <!-- Dynamic Header -->
   <header class="site-header"></header>
 
-  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
-    <div class="invoice-card" style="margin: 0 auto; max-width: 720px; background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-lg);">
-      <div class="invoice-header" style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid var(--border-light); margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-            🍔
+  <main class="container" style="padding-top: 24px; padding-bottom: 70px;">
+    <div class="invoice-card">
+      <!-- Invoice Header -->
+      <div class="invoice-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="nav-brand-logo">
+            <i class="fas fa-bolt"></i>
           </div>
           <div>
-            <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0;">BiteFleet</h2>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Official Tax Invoice & Receipt</p>
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--accent-dark); margin: 0;">BiteFleet</h2>
+            <p style="color: var(--text-muted); font-size: 0.78rem; margin: 0;">Official Tax Invoice & Receipt</p>
           </div>
         </div>
-        <div class="invoice-meta" style="text-align: right;">
-          <p style="margin: 0 0 4px; font-size: 0.88rem; color: var(--text-muted);">Invoice Date: <span id="orderDate" style="font-weight: 600; color: var(--text-main);">Today</span></p>
-          <p style="margin: 0; font-size: 0.88rem;">Status: <span id="orderStatus" class="status-badge">Loading...</span></p>
-        </div>
-      </div>
-
-      <div class="invoice-body">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; background: var(--bg-muted); padding: 16px; border-radius: var(--radius-md); font-size: 0.9rem;">
-          <div>
-            <span style="color: var(--text-muted); display: block;">Order Reference:</span>
-            <strong id="order_id" style="font-size: 1.1rem; color: var(--accent);">#--</strong>
-          </div>
-          <div>
-            <span style="color: var(--text-muted); display: block;">Customer Name:</span>
-            <strong id="customerName">--</strong>
-          </div>
-          <div style="grid-column: 1/-1;">
-            <span style="color: var(--text-muted); display: block;">Delivery Address:</span>
-            <span id="deliveryAddress" style="font-weight: 500;">--</span>
-          </div>
-        </div>
-
-        <div class="invoice-section" style="margin-bottom: 24px;">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
-            Ordered Items
-          </h3>
-          <div class="items-list" id="itemsContainer">
-            <div class="item-row">
-              <span>Loading items...</span>
-              <span>Rs. 0.00</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="invoice-section" style="margin-bottom: 24px;">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
-            Payment Breakdown
-          </h3>
-          <div class="payment-details">
-            <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem;">
-              <span>Subtotal</span>
-              <span id="subtotal" style="font-weight: 600;">Rs. 0.00</span>
-            </div>
-            <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem;">
-              <span>Delivery Fee</span>
-              <span id="deliveryFee" style="font-weight: 600;">Rs. 0.00</span>
-            </div>
-            <div id="discountRow" class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; color: var(--success);">
-              <span>Discount</span>
-              <span id="discount" style="font-weight: 700;">- Rs. 0.00</span>
-            </div>
-            <div class="detail-row total-row" style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 2px solid var(--border-light); font-size: 1.25rem; font-weight: 800; color: var(--accent); margin-top: 10px;">
-              <span>Total Paid</span>
-              <span id="total">Rs. 0.00</span>
-            </div>
+        <div style="text-align: right;">
+          <p style="margin: 0 0 2px; font-size: 0.82rem; color: var(--text-muted);">Date: <span id="orderDate" style="font-weight: 600; color: var(--text-primary);">Today</span></p>
+          <div id="orderStatusWrap" style="margin-top: 4px;">
+            <span id="orderStatus" class="status-badge">Confirmed</span>
           </div>
         </div>
       </div>
 
-      <div class="invoice-footer" style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-light);">
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
-          Thank you for choosing BiteFleet! For any questions regarding this receipt, contact us at 1800-BITE-FLEET.
+      <!-- Info Grid -->
+      <div class="invoice-info-grid">
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.76rem;">Order Reference:</span>
+          <strong id="order_id" style="font-size: 0.95rem; color: var(--accent-dark);">#--</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-muted); display: block; font-size: 0.76rem;">Customer Name:</span>
+          <strong id="customerName" style="color: var(--text-primary);">--</strong>
+        </div>
+        <div style="grid-column: 1/-1;">
+          <span style="color: var(--text-muted); display: block; font-size: 0.76rem;">Delivery Address:</span>
+          <span id="deliveryAddress" style="font-weight: 500; color: var(--text-primary);">--</span>
+        </div>
+      </div>
+
+      <!-- Items Section -->
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-dark); margin-bottom: 8px;">Ordered Dishes</h3>
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>Dish</th>
+              <th style="text-align: center;">Qty</th>
+              <th style="text-align: right;">Price</th>
+              <th style="text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="itemsContainer">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted);">Loading items...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Payment Breakdown -->
+      <div style="margin-bottom: 24px; border-top: 1px solid var(--border-light); padding-top: 14px;">
+        <div class="bill-row">
+          <span>Subtotal</span>
+          <span id="subtotal" style="font-weight: 600; color: var(--text-primary);">₹0.00</span>
+        </div>
+        <div class="bill-row">
+          <span>Delivery Fee</span>
+          <span id="deliveryFee" style="font-weight: 600; color: var(--text-primary);">₹0.00</span>
+        </div>
+        <div id="discountRow" class="bill-row" style="display: none; color: var(--success);">
+          <span>Discount Applied</span>
+          <span id="discount" style="font-weight: 700;">- ₹0.00</span>
+        </div>
+        <div class="bill-row total">
+          <span>Total Paid</span>
+          <span id="total">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Footer & Actions -->
+      <div style="text-align: center; margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 16px;">
+          Thank you for ordering with BiteFleet! For assistance regarding this receipt, contact 1800-BITE-FLEET.
         </p>
-        <div class="action-bar" style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-          <a href="menu.html" class="btn btn-secondary btn-sm">
-            ← Back to Menu
+        <div class="no-print" style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <a href="order-history.html" class="btn btn-secondary btn-sm">
+            ← Orders
           </a>
           <a id="trackLink" href="#" class="btn btn-secondary btn-sm">
-            <i class="fas fa-truck-fast"></i> Track Order
+            <i class="fas fa-truck-fast"></i> Track Status
           </a>
           <button onclick="window.print()" class="btn btn-primary btn-sm">
             <i class="fas fa-print"></i> Print Invoice
@@ -107,7 +181,7 @@
 
   <script src="../main.js"></script>
   <script>
-    renderNavbar();
+    renderNavbar('orders');
     renderFooter();
 
     async function loadBillingData() {
@@ -116,8 +190,7 @@
       const token = getToken();
 
       if (!order_id) {
-        alert('No order specified');
-        window.location.href = 'menu.html';
+        window.location.href = 'order-history.html';
         return;
       }
 
@@ -125,65 +198,56 @@
 
       try {
         const res = await fetch(`/api/orders/${order_id}/billing`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         
         if (!res.ok) throw new Error('Failed to load billing data');
         
         const data = await res.json();
+        const status = data.status || 'Confirmed';
+        const statusLower = status.toLowerCase().replace(/\s+/g, '-');
         
-        // Update order information
         document.getElementById('order_id').textContent = `#${order_id}`;
-        document.getElementById('orderStatus').textContent = `${data.statusEmoji || ''} ${data.status}`;
+        document.getElementById('orderStatus').textContent = status;
+        document.getElementById('orderStatus').className = `status-badge ${statusLower}`;
         document.getElementById('customerName').textContent = data.customerName || 'Valued Customer';
         document.getElementById('deliveryAddress').textContent = data.deliveryAddress || 'Standard Delivery';
-        document.getElementById('subtotal').textContent = `Rs. ${parseFloat(data.subtotal).toFixed(2)}`;
-        document.getElementById('deliveryFee').textContent = parseFloat(data.deliveryFee) === 0 ? 'FREE' : `Rs. ${parseFloat(data.deliveryFee).toFixed(2)}`;
+        document.getElementById('subtotal').textContent = `₹${parseFloat(data.subtotal).toFixed(2)}`;
+        document.getElementById('deliveryFee').textContent = parseFloat(data.deliveryFee) === 0 ? 'FREE' : `₹${parseFloat(data.deliveryFee).toFixed(2)}`;
         
         if (parseFloat(data.discount) > 0) {
           document.getElementById('discountRow').style.display = 'flex';
-          document.getElementById('discount').textContent = `- Rs. ${parseFloat(data.discount).toFixed(2)}`;
+          document.getElementById('discount').textContent = `- ₹${parseFloat(data.discount).toFixed(2)}`;
         } else {
           document.getElementById('discountRow').style.display = 'none';
         }
 
-        document.getElementById('total').textContent = `Rs. ${parseFloat(data.total).toFixed(2)}`;
+        document.getElementById('total').textContent = `₹${parseFloat(data.total).toFixed(2)}`;
         
-        // Format and display items
         const itemsContainer = document.getElementById('itemsContainer');
-        itemsContainer.innerHTML = '';
-        
         if (data.items && data.items.length > 0) {
-          data.items.forEach(item => {
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-row';
-            itemRow.style.display = 'flex';
-            itemRow.style.justifyContent = 'space-between';
-            itemRow.style.padding = '8px 0';
-            itemRow.style.borderBottom = '1px dashed #f5f3ef';
-            itemRow.innerHTML = `
-              <span>${item.emoji || '🍽️'} <strong>${item.name}</strong> × ${item.quantity}</span>
-              <span style="font-weight: 700; color: var(--accent);">Rs. ${parseFloat(item.total).toFixed(2)}</span>
-            `;
-            itemsContainer.appendChild(itemRow);
-          });
+          itemsContainer.innerHTML = data.items.map(item => `
+            <tr>
+              <td style="font-weight: 600;">${item.name}</td>
+              <td style="text-align: center;">${item.quantity}</td>
+              <td style="text-align: right;">₹${parseFloat(item.price || (item.total / item.quantity)).toFixed(2)}</td>
+              <td style="text-align: right; font-weight: 700;">₹${parseFloat(item.total).toFixed(2)}</td>
+            </tr>
+          `).join('');
         } else {
-          itemsContainer.innerHTML = '<div class="item-row"><span>No items in this order</span><span>Rs. 0.00</span></div>';
+          itemsContainer.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No items recorded</td></tr>';
         }
         
-        // Set date
         const dateObj = data.orderDate ? new Date(data.orderDate) : new Date();
         document.getElementById('orderDate').textContent = dateObj.toLocaleDateString('en-US', {
           year: 'numeric', 
-          month: 'long', 
+          month: 'short', 
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit'
         });
-        
       } catch (error) {
         console.error('Billing error:', error);
-        alert('Failed to load billing information');
       }
     }
 

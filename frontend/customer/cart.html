@@ -3,110 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Shopping Cart - BiteFleet</title>
+  <title>Your Shopping Cart — BiteFleet</title>
+  <meta name="description" content="Review order items, apply discount coupons, and proceed to secure checkout on BiteFleet.">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Compact Cart Styling */
     .cart-grid {
       display: grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap: 32px;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
       align-items: flex-start;
     }
+
     .cart-card {
       background: white;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-lg);
-      padding: 28px;
-      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-xs);
     }
+
     .cart-item-row {
       display: grid;
-      grid-template-columns: auto 1fr auto auto auto;
-      gap: 16px;
+      grid-template-columns: 48px 1fr auto auto auto;
+      gap: 14px;
       align-items: center;
-      padding: 16px 0;
+      padding: 12px 0;
       border-bottom: 1px dashed var(--border-light);
     }
+
     .cart-item-row:last-child {
       border-bottom: none;
     }
-    .item-icon-box {
-      width: 52px;
-      height: 52px;
-      border-radius: var(--radius-md);
+
+    .cart-thumb-box {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
       background: var(--bg-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
+      flex-shrink: 0;
     }
+
+    .cart-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .qty-control {
       display: flex;
       align-items: center;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-full);
+      border-radius: var(--radius-sm);
       background: white;
       overflow: hidden;
     }
+
     .qty-btn {
       border: none;
       background: transparent;
-      padding: 4px 10px;
-      font-size: 1rem;
+      padding: 3px 8px;
+      font-size: 0.95rem;
       cursor: pointer;
-      color: var(--text-main);
+      color: var(--text-primary);
       transition: background var(--transition-fast);
     }
+
     .qty-btn:hover {
       background: var(--bg-muted);
     }
+
     .qty-number {
       font-weight: 700;
-      min-width: 28px;
+      min-width: 24px;
       text-align: center;
-      font-size: 0.92rem;
+      font-size: 0.85rem;
     }
-    .summary-line {
+
+    .bill-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-size: 0.86rem;
+      color: var(--text-secondary);
     }
-    .summary-line.total {
-      font-size: 1.25rem;
+
+    .bill-row.total {
+      font-size: 1.15rem;
       font-weight: 800;
-      color: var(--accent);
-      padding-top: 14px;
+      color: var(--accent-dark);
+      padding-top: 12px;
       border-top: 1px solid var(--border-light);
-      margin-top: 14px;
+      margin-top: 12px;
     }
+
     .coupon-box {
       display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      margin-bottom: 16px;
+      gap: 6px;
+      margin-top: 12px;
+      margin-bottom: 12px;
     }
+
     .coupon-box input {
       flex: 1;
-      padding: 10px 14px;
+      padding: 7px 12px;
       border: 1px solid var(--border-light);
-      border-radius: var(--radius-md);
-      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
       text-transform: uppercase;
       outline: none;
     }
+
     .coupon-box input:focus {
       border-color: var(--primary);
     }
-    @media (max-width: 900px) {
+
+    @media (max-width: 860px) {
       .cart-grid {
         grid-template-columns: 1fr;
       }
       .cart-item-row {
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto auto;
+        grid-template-columns: 48px 1fr auto;
+        row-gap: 8px;
       }
     }
   </style>
@@ -116,28 +136,28 @@
   <!-- Dynamic Header -->
   <header class="site-header"></header>
 
-  <main class="container" style="padding-top: 36px; padding-bottom: 80px;">
+  <main class="container" style="padding-top: 24px; padding-bottom: 70px;">
     <!-- Breadcrumb & Header -->
-    <div style="margin-bottom: 24px;">
-      <a href="menu.html" style="color: var(--primary-dark); font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+    <div style="margin-bottom: 20px;">
+      <a href="menu.html" style="color: var(--primary); font-weight: 600; text-decoration: none; font-size: 0.82rem;">
         ← Continue Shopping
       </a>
-      <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-top: 8px;">Shopping Cart</h1>
+      <h1 class="page-title" style="margin-top: 4px;">Shopping Cart</h1>
     </div>
 
     <!-- Loading State -->
-    <div id="cartLoading" style="text-align: center; padding: 60px 0; color: var(--text-muted);">
+    <div id="cartLoading" style="text-align: center; padding: 50px 0; color: var(--text-muted); font-size: 0.88rem;">
       <i class="fas fa-spinner fa-spin fa-2x"></i>
-      <p style="margin-top: 12px;">Loading your cart items...</p>
+      <p style="margin-top: 10px;">Loading your cart items...</p>
     </div>
 
     <!-- Empty State -->
     <div id="emptyCartView" class="empty-state" style="display: none;">
-      <div class="empty-state-icon">🛒</div>
-      <h2 class="empty-state-title">Your Cart is Currently Empty</h2>
-      <p class="empty-state-desc">You haven't added any delicious food to your cart yet. Explore our mouthwatering menu to get started!</p>
-      <a href="menu.html" class="btn btn-primary">
-        <i class="fas fa-utensils"></i> Browse Menu
+      <div class="empty-state-icon"><i class="fas fa-shopping-bag"></i></div>
+      <h3 class="empty-state-title">Your Cart is Empty</h3>
+      <p class="empty-state-desc">Looks like you haven't added any items yet. Explore our freshly cooked food options and start ordering!</p>
+      <a href="menu.html" class="btn btn-primary btn-sm">
+        <i class="fas fa-utensils"></i> Browse Food Menu
       </a>
     </div>
 
@@ -145,9 +165,9 @@
     <div id="cartContentView" class="cart-grid" style="display: none;">
       <!-- Items Column -->
       <div class="cart-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
-          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin: 0;">Order Items</h2>
-          <button onclick="confirmClearCart()" class="btn btn-sm btn-outline-danger" title="Clear Cart">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border-light);">
+          <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-dark); margin: 0;">Order Items</h2>
+          <button onclick="confirmClearCart()" class="btn btn-sm btn-outline-danger" title="Clear all items from cart">
             <i class="fas fa-trash-can"></i> Clear Cart
           </button>
         </div>
@@ -155,51 +175,51 @@
         <div id="cartItemsList"></div>
       </div>
 
-      <!-- Order Summary Column (Sticky) -->
-      <div class="cart-card" style="position: sticky; top: 96px;">
-        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 18px;">Bill Details</h2>
+      <!-- Order Summary Column -->
+      <div class="cart-card" style="position: sticky; top: 76px;">
+        <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--accent-dark); margin-bottom: 14px;">Order Summary</h2>
 
-        <div class="summary-line">
+        <div class="bill-row">
           <span>Subtotal</span>
-          <span id="subtotalDisplay" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+          <span id="subtotalDisplay" style="font-weight: 600; color: var(--text-primary);">₹0.00</span>
         </div>
 
-        <div class="summary-line">
-          <span>Delivery Partner Fee</span>
-          <span id="deliveryFeeDisplay" style="font-weight: 600; color: var(--text-main);">Rs. 0.00</span>
+        <div class="bill-row">
+          <span>Delivery Fee</span>
+          <span id="deliveryFeeDisplay" style="font-weight: 600; color: var(--text-primary);">₹0.00</span>
         </div>
 
-        <div id="discountLine" class="summary-line" style="display: none; color: var(--success);">
+        <div id="discountLine" class="bill-row" style="display: none; color: var(--success);">
           <span>Promo Discount</span>
-          <span id="discountDisplay" style="font-weight: 700;">- Rs. 0.00</span>
+          <span id="discountDisplay" style="font-weight: 700;">- ₹0.00</span>
         </div>
 
-        <div class="summary-line total">
+        <div class="bill-row total">
           <span>Total Payable</span>
-          <span id="totalDisplay">Rs. 0.00</span>
+          <span id="totalDisplay">₹0.00</span>
         </div>
 
-        <!-- Coupon Code Input -->
-        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border-light);">
-          <label for="couponInput" style="font-size: 0.88rem; font-weight: 600; color: var(--accent);">Have a Promo Code?</label>
+        <!-- Coupon Code Box -->
+        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border-light);">
+          <label for="couponInput" style="font-size: 0.8rem; font-weight: 600; color: var(--accent-dark);">Have a Promo Code?</label>
           <div class="coupon-box">
-            <input type="text" id="couponInput" placeholder="Enter coupon (e.g. WELCOME20)">
+            <input type="text" id="couponInput" placeholder="e.g. WELCOME20">
             <button class="btn btn-secondary btn-sm" onclick="applyCoupon()">Apply</button>
           </div>
-          <div id="appliedCouponBadge" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; justify-content: space-between; align-items: center;">
+          <div id="appliedCouponBadge" style="display: none; background: var(--success-bg); border: 1px solid #a7f3d0; color: #065f46; padding: 5px 10px; border-radius: var(--radius-xs); font-size: 0.78rem; justify-content: space-between; align-items: center;">
             <span id="appliedCouponText"></span>
             <button onclick="removeCoupon()" style="background: none; border: none; color: #065f46; cursor: pointer; font-weight: 700;">✕</button>
           </div>
         </div>
 
         <!-- Free Delivery Hint -->
-        <div id="freeShipNotice" style="background: var(--bg-muted); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; color: var(--text-muted); margin-top: 16px;">
-          <i class="fas fa-truck-fast" style="color: var(--primary);"></i> Free delivery on orders of Rs. 300 or above!
+        <div id="freeShipNotice" style="background: var(--bg-muted); padding: 8px 12px; border-radius: var(--radius-xs); font-size: 0.76rem; color: var(--text-muted); margin-top: 14px;">
+          <i class="fas fa-truck-fast" style="color: var(--primary);"></i> Free delivery on orders of ₹300 or above!
         </div>
 
         <!-- Checkout Action -->
-        <div style="margin-top: 24px;">
-          <a href="checkout.html" id="proceedBtn" class="btn btn-primary btn-block btn-lg">
+        <div style="margin-top: 18px;">
+          <a href="checkout.html" id="proceedBtn" class="btn btn-primary btn-block">
             Proceed to Checkout <i class="fas fa-arrow-right"></i>
           </a>
         </div>
@@ -240,49 +260,56 @@
         document.getElementById('emptyCartView').style.display = 'none';
         document.getElementById('cartContentView').style.display = 'grid';
 
-        // Render items
+        // Render items with real photography thumbnail
         const list = document.getElementById('cartItemsList');
-        list.innerHTML = data.items.map(item => `
-          <div class="cart-item-row" data-id="${item.menuId}">
-            <div class="item-icon-box">${item.emoji || '🍽️'}</div>
-            <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="dietary-mark ${(item.dietary || '').toLowerCase() === 'veg' ? 'veg' : 'non-veg'}"></span>
-                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin: 0;">${item.name}</h4>
+        list.innerHTML = data.items.map(item => {
+          const isVeg = (item.dietary || '').toLowerCase() === 'veg';
+          const imgSrc = getFoodImage({ id: item.menuId, name: item.name, category: item.category });
+
+          return `
+            <div class="cart-item-row" data-id="${item.menuId}">
+              <div class="cart-thumb-box">
+                <img src="${imgSrc}" alt="${item.name}" class="cart-thumb-img" loading="lazy" onerror="handleImageError(this, '${item.category}')">
               </div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
-                Rs. ${item.unitPrice.toFixed(2)} each
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="dietary-mark ${isVeg ? 'veg' : 'non-veg'}"></span>
+                  <h4 style="font-size: 0.92rem; font-weight: 700; color: var(--accent-dark); margin: 0;">${item.name}</h4>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                  ₹${item.unitPrice.toFixed(2)} each
+                </div>
               </div>
-            </div>
 
-            <div class="qty-control">
-              <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity - 1})">-</button>
-              <span class="qty-number">${item.quantity}</span>
-              <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity + 1})">+</button>
-            </div>
+              <div class="qty-control">
+                <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity - 1})">-</button>
+                <span class="qty-number">${item.quantity}</span>
+                <button class="qty-btn" onclick="updateQty(${item.menuId}, ${item.quantity + 1})">+</button>
+              </div>
 
-            <div style="font-weight: 800; color: var(--accent); font-size: 1rem; min-width: 80px; text-align: right;">
-              Rs. ${item.total.toFixed(2)}
-            </div>
+              <div style="font-weight: 800; color: var(--accent-dark); font-size: 0.95rem; min-width: 70px; text-align: right;">
+                ₹${item.total.toFixed(2)}
+              </div>
 
-            <button onclick="removeItem(${item.menuId})" style="border: none; background: none; color: #9ca3af; cursor: pointer; padding: 6px;" title="Remove Item">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </div>
-        `).join('');
+              <button onclick="removeItem(${item.menuId})" style="border: none; background: none; color: #9ca3af; cursor: pointer; padding: 4px;" title="Remove Item">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          `;
+        }).join('');
 
         // Summary details
-        document.getElementById('subtotalDisplay').textContent = `Rs. ${data.subtotal.toFixed(2)}`;
-        document.getElementById('deliveryFeeDisplay').textContent = data.deliveryFee === 0 ? 'FREE' : `Rs. ${data.deliveryFee.toFixed(2)}`;
+        document.getElementById('subtotalDisplay').textContent = `₹${data.subtotal.toFixed(2)}`;
+        document.getElementById('deliveryFeeDisplay').textContent = data.deliveryFee === 0 ? 'FREE' : `₹${data.deliveryFee.toFixed(2)}`;
         
         if (data.discount > 0) {
           document.getElementById('discountLine').style.display = 'flex';
-          document.getElementById('discountDisplay').textContent = `- Rs. ${data.discount.toFixed(2)}`;
+          document.getElementById('discountDisplay').textContent = `- ₹${data.discount.toFixed(2)}`;
         } else {
           document.getElementById('discountLine').style.display = 'none';
         }
 
-        document.getElementById('totalDisplay').textContent = `Rs. ${data.total.toFixed(2)}`;
+        document.getElementById('totalDisplay').textContent = `₹${data.total.toFixed(2)}`;
 
         // Active coupon display
         if (data.couponCode) {
@@ -298,8 +325,7 @@
         console.error('Cart load error:', err);
         document.getElementById('cartLoading').innerHTML = `
           <div style="color: var(--error);">
-            <i class="fas fa-exclamation-triangle fa-2x"></i>
-            <p style="margin-top: 10px;">Failed to load cart. Please try again.</p>
+            <p>Failed to load cart. Please try again.</p>
           </div>
         `;
       }

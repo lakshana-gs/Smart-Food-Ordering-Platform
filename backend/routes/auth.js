@@ -132,7 +132,19 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.status(404).json({ message: 'User profile not found.' });
     }
 
-    res.json({ user: rows[0] });
+    const user = rows[0];
+
+    // If role or username in DB differs from token, issue fresh token so client is automatically up to date
+    let freshToken = null;
+    if (req.user.role !== user.role || req.user.username !== user.username) {
+      freshToken = jwt.sign(
+        { id: user.user_id, email: user.email, role: user.role, username: user.username },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+    }
+
+    res.json({ user, token: freshToken });
   } catch (error) {
     console.error('Fetch Current User Error:', error);
     res.status(500).json({ message: 'Server error fetching user profile.' });
